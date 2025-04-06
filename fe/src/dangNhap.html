@@ -52,9 +52,7 @@
                     },
                     body: JSON.stringify({ tenTaiKhoan, matKhau })
                 });
-
                 const data = await response.json();
-
                 if (response.status === 200) {
                     window.location.href = "index.html"
                 } else {
