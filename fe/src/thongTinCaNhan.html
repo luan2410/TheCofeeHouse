@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông Tin Cá Nhân</title>
+    <link rel="stylesheet" href="css/Login.css">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/thongTinCaNhan.css">
+</head>
+
+<body>
+    <div class="container" id="form_container">
+        <h1 class="text-center" id="thongTinCaNhan_title">Thông Tin Cá Nhân</h1>
+        <div>
+            <table id="thongTinCaNhan">
+                <tr>
+                    <th>Họ:</th>
+                    <td id="ho"></td>
+                </tr>
+                <tr>
+                    <th>Tên:</th>
+                    <td id="ten"></td>
+                </tr>
+                <tr>
+                    <th>Tên tài khoản:</th>
+                    <td id="tenTaiKhoan"></td>
+                </tr>
+                <tr>
+                    <th>Số điện thoại:</th>
+                    <td id="sdt"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+<script>
+    window.addEventListener('load', async function () {
+        const idUser = localStorage.getItem('idUser');
+        console.log(idUser); // Kiểm tra xem idUser có tồn tại trong localStorage không
+        if (!idUser) {
+            alert('Bạn chưa đăng nhập!');
+            window.location.href = 'dangNhap.html'; // Điều hướng về trang đăng nhập
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:3000/api/user/${idUser}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            if (response.ok) {
+                // Hiển thị thông tin cá nhân lên giao diện
+                displayUserData(data);
+            } else {
+                alert('Không thể lấy thông tin người dùng');
+            }
+        } catch (error) {
+            console.error('Lỗi:', error);
+            alert('Lỗi kết nối tới server');
+        }
+    });
+
+    function displayUserData(data) {
+        document.getElementById('ho').textContent = data.ho || 'N/A';
+        document.getElementById('ten').textContent = data.ten || 'N/A';
+        document.getElementById('tenTaiKhoan').textContent = data.tenTaiKhoan || 'N/A';
+        document.getElementById('sdt').textContent = data.sdt || 'N/A';
+    }
+</script>
+
+</html>

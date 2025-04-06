@@ -54,6 +54,8 @@
                 });
                 const data = await response.json();
                 if (response.status === 200) {
+                    console.log(data.idUser);
+                    localStorage.setItem('idUser', data.idUser);// Lưu idUser vào localStorage
                     window.location.href = "index.html"
                 } else {
                     alert(data.message);

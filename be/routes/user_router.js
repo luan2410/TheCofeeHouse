@@ -31,10 +31,14 @@ router.post('/login', async (req, res) => {
         const user = await User.findOne({
             tenTaiKhoan: req.body.tenTaiKhoan,
             matKhau: req.body.matKhau // 👈 nên hash ở thực tế nhé
+           
         });
 
         if (!user) return res.status(401).json({ message: "Sai tài khoản hoặc mật khẩu" });
-
+        res.status(200).json({
+            message: "Đăng nhập thành công",
+            idUser: user.idUser, // Chỉ cần trả về idUser thay vì toàn bộ user
+        });
         res.status(200).json({ message: "Đăng nhập thành công", user });
         res.redirect('http://localhost:3000/index.html');
     } catch (err) {
@@ -103,17 +107,17 @@ router.post('/register', async (req, res) => {
             });
         }
         //tạo ID tự động cho người dùng mới
-        const idUser = await getNextUserId();  
+        const idUser = await getNextUserId();
         const user = new User({
-            ...req.body, 
-            idUser: idUser   
+            ...req.body,
+            idUser: idUser
         });
         if (!user) {
             return res.status(400).json({ message: "Tạo tài khoản thất bại" });
         }
         // Lưu người dùng vào cơ sở dữ liệu
         await user.save();
-      
+
         // Thành công, trả về thông báo
         return res.status(201).json({
             message: "Tạo tài khoản thành công",
@@ -128,5 +132,31 @@ router.post('/register', async (req, res) => {
         });
     }
 });
+
+router.get('/:idUser', async (req, res) => {
+    const { idUser } = req.params;  // Lấy idUser từ URL
+
+    try {
+        const user = await User.findOne({ idUser });
+
+        if (!user) {
+            return res.status(404).json({ message: 'Người dùng không tồn tại' });
+        }
+
+        // Trả về dữ liệu người dùng nếu tìm thấy
+        res.json({
+            idUser: user.idUser,
+            ho: user.ho,
+            ten: user.ten,
+            tenTaiKhoan: user.tenTaiKhoan,
+            sdt: user.sdt,
+            ngayTao: user.ngayTao
+        });
+    } catch (error) {
+        console.error('Lỗi khi lấy thông tin người dùng:', error);
+        res.status(500).json({ message: 'Lỗi hệ thống' });
+    }
+});
+
 
 module.exports = router;
