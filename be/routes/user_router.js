@@ -31,7 +31,7 @@ router.post('/login', async (req, res) => {
         const user = await User.findOne({
             tenTaiKhoan: req.body.tenTaiKhoan,
             matKhau: req.body.matKhau // 👈 nên hash ở thực tế nhé
-           
+
         });
 
         if (!user) return res.status(401).json({ message: "Sai tài khoản hoặc mật khẩu" });
@@ -39,8 +39,8 @@ router.post('/login', async (req, res) => {
             message: "Đăng nhập thành công",
             idUser: user.idUser, // Chỉ cần trả về idUser thay vì toàn bộ user
         });
-        res.status(200).json({ message: "Đăng nhập thành công", user });
-        res.redirect('http://localhost:3000/index.html');
+        // res.status(200).json({ message: "Đăng nhập thành công", user });
+        // res.redirect('http://localhost:3000/index.html');
     } catch (err) {
         res.status(500).json({ message: "Lỗi server", error: err });
     }
@@ -157,6 +157,81 @@ router.get('/:idUser', async (req, res) => {
         res.status(500).json({ message: 'Lỗi hệ thống' });
     }
 });
+
+
+// API Cập nhật thông tin người dùng (PUT)
+router.put('/update/:idUser', async (req, res) => {
+    const { idUser } = req.params;
+
+    // Xác định schema update với validation cho các trường
+    const updateSchema = Joi.object({
+        ho: Joi.string()
+            .optional()
+            .pattern(/^[A-Z][a-zA-Z]*$/) // Chữ cái đầu viết hoa
+            .messages({
+                "string.pattern.base": "Họ phải bắt đầu bằng chữ cái viết hoa và chỉ chứa chữ cái"
+            }),
+
+        ten: Joi.string()
+            .optional()
+            .pattern(/^[A-Z][a-zA-Z]*$/) // Chữ cái đầu viết hoa
+            .messages({
+                "string.pattern.base": "Tên phải bắt đầu bằng chữ cái viết hoa và chỉ chứa chữ cái"
+            }),
+
+        tenTaiKhoan: Joi.string()
+            .optional()
+            .messages({
+                "string.empty": "Tên tài khoản không được để trống"
+            }),
+
+        matKhau: Joi.string()
+            .optional()
+            .min(8) // Ít nhất 8 ký tự
+            .pattern(/^(?=.*[A-Z])(?=.*\d)/) // Ít nhất 1 chữ viết hoa và 1 số
+            .messages({
+                "string.min": "Mật khẩu phải có ít nhất 8 ký tự",
+                "string.pattern.base": "Mật khẩu phải bao gồm ít nhất 1 chữ cái viết hoa và 1 số"
+            }),
+
+        sdt: Joi.string()
+            .optional()
+            .pattern(/^(09|07|08)\d{8}$/) // Số điện thoại phải bắt đầu với 09, 07, hoặc 08 và có 10 ký tự
+            .messages({
+                "string.pattern.base": "Số điện thoại phải bắt đầu bằng 09, 07 hoặc 08 và có 10 ký tự"
+            })
+    });
+
+    // Validate dữ liệu từ client
+    const { error } = updateSchema.validate(req.body);
+    if (error) {
+        return res.status(400).json({ message: error.details.map(d => d.message).join(', ') });
+    }
+
+    try {
+        // Cập nhật thông tin người dùng
+        const user = await User.findOneAndUpdate(
+            { idUser },
+            { $set: req.body }, // Cập nhật dữ liệu người dùng
+            { new: true } // Trả về document mới sau khi update
+        );
+
+        if (!user) {
+            return res.status(404).json({ message: 'Không tìm thấy người dùng để cập nhật' });
+        }
+
+        res.status(200).json({
+            message: 'Cập nhật thông tin thành công',
+            user
+        });
+    } catch (err) {
+        console.error('Lỗi khi cập nhật người dùng:', err);
+        res.status(500).json({ message: 'Lỗi server', error: err.message });
+    }
+});
+
+
+
 
 
 module.exports = router;
