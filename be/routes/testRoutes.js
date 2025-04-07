@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
     name: String,
     email: String
 });
-const User = mongoose.model('User', userSchema);
+const User = mongoose.models.User || mongoose.model('User', userSchema);
 
 // [GET] Hiển thị tất cả user
 router.get('/users', async (req, res) => {
