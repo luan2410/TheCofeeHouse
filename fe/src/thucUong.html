@@ -249,6 +249,26 @@
             }
         }
 
+        .like-btn {
+            display: inline-block;
+            padding: 8px 20px;
+            background: #4a4a4a;
+            /* Xám đậm */
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .like-btn:hover {
+            background: #ff5e1f;
+            /* Chuyển sang cam khi hover */
+        }
+
         /* Điều chỉnh header từ index.html */
         .header {
             position: fixed;
@@ -349,34 +369,30 @@
     </div>
 
     <script>
-        let monNuoc = []; // Biến toàn cục lưu dữ liệu
+        let monNuoc = [];
 
         async function fetchMonNuoc() {
             try {
                 const response = await fetch('http://localhost:3000/api/mon-nuoc');
-
                 if (!response.ok) {
                     throw new Error(`Lỗi HTTP! status: ${response.status}`);
                 }
-
                 const data = await response.json();
                 console.log('Dữ liệu nhận được:', data);
-
                 if (!Array.isArray(data) || data.length === 0) {
                     throw new Error('Không có dữ liệu món nước');
                 }
-
                 monNuoc = data;
                 displayMenu(monNuoc);
                 displayFavorite(monNuoc);
             } catch (error) {
                 console.error('Lỗi khi tải dữ liệu:', error);
                 document.getElementById('menuGrid').innerHTML = `
-      <div class="error-message">
-        <p>Không thể tải dữ liệu. Vui lòng thử lại sau.</p>
-        <p>${error.message}</p>
-      </div>
-    `;
+                    <div class="error-message">
+                        <p>Không thể tải dữ liệu. Vui lòng thử lại sau.</p>
+                        <p>${error.message}</p>
+                    </div>
+                `;
             }
         }
 
@@ -385,46 +401,82 @@
             menuGrid.innerHTML = '';
             list.forEach(mon => {
                 const imagePath = mon.hinhAnh;
-
                 const div = document.createElement('div');
                 div.className = 'menu-item';
                 div.innerHTML = `
-      <img src="${imagePath}" alt="${mon.ten}" class="item-image">
-      <div class="item-content">
-        <h3 class="item-title">${mon.ten}</h3>
-        <p class="item-desc">${mon.moTa}</p>
-        <p class="item-price">${mon.gia.toLocaleString()}đ</p>
-        <p class="item-like">Lượt thích: ${mon.yeuThich}</p>
-        <button class="order-btn" onclick="alert('Đã thêm ${mon.ten} vào giỏ hàng!')">Đặt hàng</button>
-      </div>
-    `;
+                    <img src="${imagePath}" alt="${mon.ten}" class="item-image">
+                    <div class="item-content">
+                        <h3 class="item-title">${mon.ten}</h3>
+                        <p class="item-desc">${mon.moTa}</p>
+                        <p class="item-price">${mon.gia.toLocaleString()}đ</p>
+                        <p class="item-like">Lượt thích: <span class="like-count">${mon.yeuThich}</span></p>
+                        <button class="order-btn" onclick="alert('Đã thêm ${mon.ten} vào giỏ hàng!')">Đặt hàng</button>
+                        <button class="like-btn" onclick="likeItem('${mon._id}', this)">Thích</button>
+                    </div>
+                `;
                 menuGrid.appendChild(div);
             });
         }
 
+        async function likeItem(id, button) {
+            if (!id) {
+                console.error('ID không hợp lệ:', id);
+                alert('Không thể thích món này vì ID không hợp lệ!');
+                return;
+            }
+            try {
+                const response = await fetch(`http://localhost:3000/api/mon-nuoc/${id}/like`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Lỗi khi cập nhật lượt thích');
+                }
+                const updatedMon = await response.json();
+
+                const likeCountElement = button.previousElementSibling.previousElementSibling.querySelector('.like-count');
+
+                if (likeCountElement) {
+                    likeCountElement.textContent = updatedMon.yeuThich;
+                } else {
+                    console.error('Không tìm thấy phần tử like-count:', button);
+                    alert('Không thể cập nhật lượt thích trên giao diện!');
+                    return;
+                }
+
+                const index = monNuoc.findIndex(mon => mon._id === id);
+                if (index !== -1) {
+                    monNuoc[index].yeuThich = updatedMon.yeuThich;
+                    displayFavorite(monNuoc); 
+                }
+            } catch (error) {
+                console.error('Lỗi khi thích món:', error);
+                alert(`Không thể thích món này: ${error.message}`);
+            }
+        }
+
         function displayFavorite(list) {
             const favoriteItem = document.getElementById('favoriteItem');
-
             if (!list || list.length === 0) {
                 favoriteItem.innerHTML = '<p>Chưa có món nào được yêu thích</p>';
                 return;
             }
-
             try {
                 const favorite = list.reduce((prev, current) =>
                     (prev.yeuThich > current.yeuThich) ? prev : current
                 );
-
                 favoriteItem.innerHTML = `
-      <img src="${favorite.hinhAnh}" alt="${favorite.ten}" class="favorite-image">
-      <div>
-        <h3>${favorite.ten}</h3>
-        <p class="item-desc">${favorite.moTa}</p>
-        <p class="item-price">${favorite.gia.toLocaleString()}đ</p>
-        <p class="item-like">Lượt thích: ${favorite.yeuThich}</p>
-        <button class="order-btn" onclick="alert('Đã thêm ${favorite.ten} vào giỏ hàng!')">Đặt hàng</button>
-      </div>
-    `;
+            <img src="${favorite.hinhAnh}" alt="${favorite.ten}" class="favorite-image">
+            <div class="favorite-content">
+                <h3>${favorite.ten}</h3>
+                <p class="item-desc">${favorite.moTa}</p>
+                <p class="item-price">${favorite.gia.toLocaleString()}đ</p>
+                <p class="item-like">Lượt thích: <span class="like-count">${favorite.yeuThich}</span></p>
+            </div>
+        `;
             } catch (error) {
                 console.error('Lỗi khi hiển thị món yêu thích:', error);
                 favoriteItem.innerHTML = '<p>Lỗi khi hiển thị món yêu thích</p>';
@@ -434,13 +486,11 @@
         function filterMenu() {
             const searchText = document.getElementById('searchInput').value.toLowerCase();
             const typeFilter = document.getElementById('typeFilter').value;
-
             let filtered = monNuoc.filter(mon => {
                 const matchSearch = mon.ten.toLowerCase().includes(searchText);
                 const matchType = typeFilter === '' || mon.loai === typeFilter;
                 return matchSearch && matchType;
             });
-
             displayMenu(filtered);
         }
 

@@ -38,4 +38,18 @@ router.post('/', async (req, res) => {
     }
 });
 
+router.put('/:id/like', async (req, res) => {
+    try {
+        const monNuoc = await MonNuoc.findById(req.params.id);
+        if (!monNuoc) {
+            return res.status(404).json({ message: 'Không tìm thấy món nước' });
+        }
+        monNuoc.yeuThich += 1; // Tăng lượt thích lên 1
+        const updatedMonNuoc = await monNuoc.save();
+        res.json(updatedMonNuoc);
+    } catch (err) {
+        res.status(500).json({ message: 'Lỗi khi cập nhật lượt thích', error: err });
+    }
+});
+
 module.exports = router;
