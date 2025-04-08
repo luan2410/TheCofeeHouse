@@ -52,4 +52,30 @@ router.put('/:id/like', async (req, res) => {
     }
 });
 
+router.get('/types', async (req, res) => {
+    try {
+        const types = await MonNuoc.distinct('loai');
+        res.json(types);
+    } catch (err) {
+        res.status(500).json({ message: 'Lỗi khi lấy danh sách loại đồ uống', error: err });
+    }
+});
+
+router.get('/search', async (req, res) => {
+    try {
+        const { ten, loai } = req.query; 
+        const query = {};
+        if (ten) {
+            query.ten = { $regex: ten, $options: 'i' }; 
+        }
+        if (loai) {
+            query.loai = loai;
+        }
+        const monNuoc = await MonNuoc.find(query);
+        res.json(monNuoc);
+    } catch (err) {
+        res.status(500).json({ message: 'Lỗi khi tìm kiếm món nước', error: err });
+    }
+});
+
 module.exports = router;
