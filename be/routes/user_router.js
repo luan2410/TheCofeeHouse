@@ -11,7 +11,8 @@ const userSchema = new mongoose.Schema({
     tenTaiKhoan: { type: String, required: true, unique: true },
     matKhau: { type: String, required: true },
     sdt: { type: String, required: true },
-    ngayTao: { type: Date, default: Date.now }
+    ngayTao: { type: Date, default: Date.now },
+    diemTichLuy: { type: Number, default: 0 }
 });
 
 // ✅ Fix lỗi OverwriteModelError:
@@ -150,7 +151,8 @@ router.get('/:idUser', async (req, res) => {
             ten: user.ten,
             tenTaiKhoan: user.tenTaiKhoan,
             sdt: user.sdt,
-            ngayTao: user.ngayTao
+            ngayTao: user.ngayTao,
+            diemTichLuy: user.diemTichLuy
         });
     } catch (error) {
         console.error('Lỗi khi lấy thông tin người dùng:', error);

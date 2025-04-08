@@ -12,7 +12,7 @@ body {
 
 #form_container {
     width: 500px;
-    height: 420px;
+    height: 460px;
     background-color: #C0C0C0;
     margin-top: 180px;
     margin-left: 300px;
@@ -22,7 +22,7 @@ body {
     flex-direction: column;
 }
 
-#thongTinCaNhan_title{
+#thongTinCaNhan_title {
     text-align: center;
     font-size: 35px;
     font-weight: bold;
@@ -31,7 +31,7 @@ body {
     font-family: 'Kanit', sans-serif;
 }
 
-#thongTinCaNhan{
+#thongTinCaNhan {
     margin-top: 20px;
     margin-left: 30px;
     font-size: 20px;
@@ -40,7 +40,8 @@ body {
     font-family: 'Kanit', sans-serif;
 }
 
-#thongTinCaNhan tr td,th{
+#thongTinCaNhan tr td,
+th {
     padding: 15px;
     font-family: 'Kanit', sans-serif;
     color: #000000;
