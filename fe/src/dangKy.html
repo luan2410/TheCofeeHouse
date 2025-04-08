@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../src/css/DangKy.css">
+    <link rel="stylesheet" href="css/Login.css">
+    <link rel="stylesheet" href="css/bootstrap.css">
+</head>
+
+<body>
+    <div class="container" id="form_container">
+        <h1 class="text-center" id="DangKy_title">Đăng Ký</h1>
+        <form method="POST" class="mt-4" id="registerForm">
+            <div class="row" id="form_row">
+                <input type="text" class="form_control1 col-5" id="ho" name="ho" placeholder="Họ" required>
+                <div class="col-2"></div>
+                <input type="text" class="form_control1 col-5" id="ten" name="ten" placeholder="Tên" required>
+            </div>
+            <div class="row" id="form_row">
+                <input type="text" class="form_control col-12" id="tenTaiKhoan" name="tenTaiKhoan"
+                    placeholder="Tên tài khoản" required>
+            </div>
+            <div class="row" id="form_row">
+                <input type="text" class="form_control col-12" id="sdt" name="sdt" placeholder="Số điện thoại" required>
+            </div>
+            <div class="row" id="form_row">
+                <input type="password" class="form_control col-12" id="matKhau" name="matKhau" placeholder="Mật khẩu"
+                    required>
+            </div>
+            <div class="row" id="form_row">
+                <input type="password" class="form_control col-12" id="nhapLaiMatKhau" name="nhapLaiMatKhau"
+                    placeholder="Nhập lại mật khẩu" required>
+            </div>
+            <div style="width: 100%;" class="text-center mt-4">
+                <button type="button" class="btn_dk" id="registerBtn">Đăng Ký</button>
+            </div>
+        </form>
+        <div class="text-center mt-4" id="form_row">
+            <p style="color: white;">Bạn đã có tài khoản?<a href="../src/dangNhap.html" class="">Đăng nhập ngay</a></p>
+        </div>
+    </div>
+</body>
+<script>
+    document.getElementById('registerBtn').addEventListener('click', async function (e) {
+        e.preventDefault(); // Ngăn chặn form submit mặc định
+
+        // Lấy dữ liệu từ form
+        const ho = document.getElementById('ho').value;
+        const ten = document.getElementById('ten').value;
+        const tenTaiKhoan = document.getElementById('tenTaiKhoan').value;
+        const sdt = document.getElementById('sdt').value;
+        const matKhau = document.getElementById('matKhau').value;
+        const nhapLaiMatKhau = document.getElementById('nhapLaiMatKhau').value;
+
+        // Kiểm tra xem mật khẩu và nhập lại mật khẩu có trùng nhau không
+        if (matKhau !== nhapLaiMatKhau) {
+            alert('Mật khẩu và nhập lại mật khẩu không khớp!');
+            return;
+
+        }
+
+        // Dữ liệu đăng ký 
+        const userData = {
+            ho: ho,
+            ten: ten,
+            tenTaiKhoan: tenTaiKhoan,
+            sdt: sdt,
+            matKhau: matKhau
+        };
+
+        try {
+            // Gửi request đăng ký
+            const response = await fetch('http://localhost:3000/api/user/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userData) // Chuyển đổi dữ liệu thành JSON
+            });
+
+            const data = await response.json(); // Chuyển đổi phản hồi từ server thành JSON
+
+            if (response.status === 201) {
+                // Đăng ký thành công
+                alert(data.message);
+            } else {
+                // Nếu có lỗi từ server
+                alert(data.message || 'Đã xảy ra lỗi');
+            }
+        } catch (error) {
+            console.error('Lỗi:', error);
+            alert('Lỗi kết nối đến server');
+        }
+    });
+
+</script>
+
+</html>

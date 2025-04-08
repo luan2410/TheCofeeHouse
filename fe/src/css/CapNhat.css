@@ -1,0 +1,58 @@
+* {
+    border: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.container-fluid {
+    background-image: url(../../data/images/home-img.jpeg);
+    background-size: cover;
+    background-repeat: none;
+    height: 100vh;
+    color: white;
+    position: relative;
+}
+
+.formCN {
+    background-color: #C0C0C0;
+    position: absolute;
+    padding: 64px;
+    width: 35%;
+    left: 10%;
+    top: 15%;
+    border-radius: 30px;
+}
+
+.formCN h1 {
+    color: black;
+    padding-bottom: 32px;
+    text-align: center;
+    font-weight: 700;
+}
+
+
+
+.formCN input {
+    padding: 16px;
+    width: 100%;
+    border: 2px solid black;
+}
+
+
+
+.formCN a {
+    text-align: right;
+    display: block;
+}
+
+.formCN button {
+    margin-left: 24%;
+    padding: 16px 64px;
+    margin-bottom: 12px;
+    font-weight: 700;
+}
+
+label {
+    margin-left: 68px;
+    margin-top: 16px;
+}
