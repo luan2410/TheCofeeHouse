@@ -6,7 +6,6 @@ const cors = require('cors');
 
 const testRoutes = require('./routes/testRoutes'); ///  import routes vao` . ở đây là import vào "testRoutes" 
 const monNuocRoutes = require('./routes/monNuoc');
-
 const userRouter = require('./routes/user_router')
 
 
@@ -14,7 +13,6 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(cors());
 
 // Kết nối MongoDB
 mongoose.connect('mongodb://localhost:27017/cofeeShop', {

@@ -354,9 +354,6 @@
             <input type="text" id="searchInput" class="search-input" placeholder="Tìm kiếm món...">
             <select id="typeFilter" class="filter-select">
                 <option value="">Tất cả</option>
-                <option value="Trà sữa">Trà sữa</option>
-                <option value="Cà phê">Cà phê</option>
-                <option value="Trà trái cây">Trà trái cây</option>
             </select>
         </div>
 
@@ -385,6 +382,7 @@
                 monNuoc = data;
                 displayMenu(monNuoc);
                 displayFavorite(monNuoc);
+                await fetchTypes();
             } catch (error) {
                 console.error('Lỗi khi tải dữ liệu:', error);
                 document.getElementById('menuGrid').innerHTML = `
@@ -393,6 +391,29 @@
                         <p>${error.message}</p>
                     </div>
                 `;
+            }
+        }
+
+        async function fetchTypes() {
+            try {
+                const response = await fetch('http://localhost:3000/api/mon-nuoc/types');
+                if (!response.ok) {
+                    throw new Error(`Lỗi HTTP! status: ${response.status}`);
+                }
+                const types = await response.json();
+                console.log('Danh sách loại đồ uống:', types);
+
+                const typeFilter = document.getElementById('typeFilter');
+                types.forEach(type => {
+                    const option = document.createElement('option');
+                    option.value = type;
+                    option.textContent = type;
+                    typeFilter.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Lỗi khi tải danh sách loại đồ uống:', error);
+                const typeFilter = document.getElementById('typeFilter');
+                typeFilter.innerHTML = '<option value="">Tất cả</option><option value="">Lỗi tải loại</option>';
             }
         }
 
@@ -450,7 +471,7 @@
                 const index = monNuoc.findIndex(mon => mon._id === id);
                 if (index !== -1) {
                     monNuoc[index].yeuThich = updatedMon.yeuThich;
-                    displayFavorite(monNuoc); 
+                    displayFavorite(monNuoc);
                 }
             } catch (error) {
                 console.error('Lỗi khi thích món:', error);
@@ -483,15 +504,36 @@
             }
         }
 
-        function filterMenu() {
-            const searchText = document.getElementById('searchInput').value.toLowerCase();
-            const typeFilter = document.getElementById('typeFilter').value;
-            let filtered = monNuoc.filter(mon => {
-                const matchSearch = mon.ten.toLowerCase().includes(searchText);
-                const matchType = typeFilter === '' || mon.loai === typeFilter;
-                return matchSearch && matchType;
-            });
-            displayMenu(filtered);
+        async function filterMenu() {
+            try {
+                const searchText = document.getElementById('searchInput').value;
+                const typeFilter = document.getElementById('typeFilter').value;
+
+                const query = new URLSearchParams();
+                if (searchText) {
+                    query.append('ten', searchText);
+                }
+                if (typeFilter) {
+                    query.append('loai', typeFilter);
+                }
+
+                const response = await fetch(`http://localhost:3000/api/mon-nuoc/search?${query.toString()}`);
+                if (!response.ok) {
+                    throw new Error(`Lỗi HTTP! status: ${response.status}`);
+                }
+                const filteredData = await response.json();
+                monNuoc = filteredData; 
+                displayMenu(filteredData);
+                displayFavorite(filteredData); 
+                    } catch (error) {
+                        console.error('Lỗi khi tìm kiếm món nước:', error);
+                        document.getElementById('menuGrid').innerHTML = `
+                    <div class="error-message">
+                        <p>Không thể tìm kiếm. Vui lòng thử lại sau.</p>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
         }
 
         document.getElementById('searchInput').addEventListener('input', filterMenu);
