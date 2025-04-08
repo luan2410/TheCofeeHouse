@@ -155,6 +155,19 @@ router.post('/register', async (req, res) => {
     }
 });
 
+router.get('/ranking', async (req, res) => {
+    try {
+        const users = await User.find({}, {
+            _id: 0, ho: 1, ten: 1, sdt: 1, diemTichLuy: 1
+        }).sort({ diemTichLuy: -1 });
+
+        res.json(users);
+    } catch (error) {
+        console.error("Lỗi khi lấy bảng xếp hạng:", error);
+        res.status(500).json({ message: "Lỗi server", error: error.message });
+    }
+});
+
 router.get('/:idUser', async (req, res) => {
     const { idUser } = req.params;  // Lấy idUser từ URL
 
@@ -252,6 +265,7 @@ router.put('/update/:idUser', async (req, res) => {
         res.status(500).json({ message: 'Lỗi server', error: err.message });
     }
 });
+
 
 
 
