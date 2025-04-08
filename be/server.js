@@ -1,12 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-
-const cors = require('cors');
-
+const userRouter = require('./routes/user_router');
 const testRoutes = require('./routes/testRoutes'); ///  import routes vao` . ở đây là import vào "testRoutes" 
 const monNuocRoutes = require('./routes/monNuoc');
-const userRouter = require('./routes/user_router')
+const cors = require('cors');
 
 
 const app = express();
@@ -24,8 +22,8 @@ mongoose.connect('mongodb://localhost:27017/cofeeShop', {
 
 // Dùng routes ......
 app.use('/', testRoutes); //// Ở đây khi import ở trên xong thì phải khai báo ở dưới đây để dùng. "tesroutes" .
-app.use('/api/mon-nuoc', monNuocRoutes);
 app.use('/api/user', userRouter);
+app.use('/api/mon-nuoc', monNuocRoutes);
 // Chạy server
 app.listen(3000, () => {
     console.log('🚀 Server chạy tại http://localhost:3000');
