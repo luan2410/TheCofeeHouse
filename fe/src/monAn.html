@@ -1,11 +1,329 @@
 <!DOCTYPE html>
-<html lang="en">
+
+<html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>food</title>
+    <title>Món Ăn - Cà phê Hương Sáng</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: #1a1a1a;
+            color: #fff;
+            padding-top: 100px;
+        }
+
+        .header {
+            background: #1a1a1a;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .menu-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            padding: 20px;
+        }
+
+        .menu-item {
+            background: #2c2c2c;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .item-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+        }
+
+        .item-content {
+            padding: 20px;
+        }
+
+        .item-title {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .item-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f9c56c;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #d3ad7f;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #c29b6c;
+        }
+
+        .btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        .like-btn {
+            background: #4a4a4a;
+            color: #fff;
+            margin-top: 10px;
+        }
+
+        .like-btn.liked {
+            background: #ff5e1f;
+        }
+
+        .out-of-stock {
+            position: relative;
+            opacity: 0.7;
+        }
+
+        .out-of-stock::after {
+            content: "HẾT HÀNG";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .filter-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 0 20px;
+        }
+
+        .filter-options input, 
+        .filter-options select {
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background: #333;
+            color: #fff;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #f9c56c;
+            font-size: 18px;
+        }
+
+        .error-message {
+            color: #ff5e1f;
+            text-align: center;
+            padding: 30px;
+            font-size: 18px;
+        }
+    </style>
 </head>
+
 <body>
-    <h1> do an </h1>
+    <header class="header">
+        <a href="index.html" class="logo">
+            <img src="../data/images/logo.png" alt="Logo">
+        </a>
+        <nav class="navbar">
+            <a href="index.html">Trang chủ</a>
+            <a href="thucUong.html">Thức uống</a>
+            <a href="monAn.html">Món ăn</a>
+            <a href="dangKy.html">Đăng ký</a>
+            <a href="dangNhap.html">Đăng nhập</a>
+        </nav>
+        <div class="icons">
+            <div class="fas fa-search" id="search-btn"></div>
+            <div class="fas fa-shopping-cart" id="cart-btn"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1 class="heading">Menu <span>Món Ăn</span></h1>
+
+        <div class="filter-options">
+            <input type="text" id="searchInput" placeholder="Tìm kiếm..." class="search-input">
+            <select id="categoryFilter" class="filter-select">
+                <option value="all">Tất cả</option>
+                <option value="banh">Bánh ngọt</option>
+                <option value="sandwich">Sandwich</option>
+                <option value="khac">Khác</option>
+            </select>
+            <label>
+                <input type="checkbox" id="favoriteFilter"> Yêu thích
+            </label>
+        </div>
+
+        <div id="menuContainer" class="menu-container">
+            <div class="loading">Đang tải dữ liệu...</div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        &copy; 2025 Cà phê Hương Sáng. All rights reserved.
+    </footer>
+
+    <script>
+        let monAnList = [];
+    
+        // Fetch dữ liệu món ăn
+        async function fetchMonAn() {
+            try {
+                const response = await fetch('http://localhost:3000/api/mon-an');
+    
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => null);
+                    throw new Error(errorData?.message || `Lỗi HTTP: ${response.status}`);
+                }
+    
+                const data = await response.json();
+    
+                if (!Array.isArray(data)) {
+                    throw new Error('Dữ liệu không hợp lệ');
+                }
+    
+                monAnList = data;
+                renderMenu(monAnList);
+            } catch (error) {
+                console.error('Lỗi khi tải dữ liệu:', error);
+                showError(`Không thể tải menu. Lỗi: ${error.message}`);
+            }
+        }
+    
+        // Render menu món ăn
+        function renderMenu(items) {
+            const container = document.getElementById('menuContainer');
+    
+            if (!items || items.length === 0) {
+                container.innerHTML = '<div class="error-message">Không có món ăn nào</div>';
+                return;
+            }
+    
+            container.innerHTML = items.map(mon => `
+                <div class="menu-item ${mon.trangThai !== 'con_hang' ? 'out-of-stock' : ''}" 
+                     data-category="${mon.danhMuc}" 
+                     data-favorite="${mon.yeuThich}">
+                    <img src="${mon.hinhAnh || 'default.jpg'}" alt="${mon.tenMon}" class="item-image">
+                    <div class="item-content">
+                        <h3 class="item-title">${mon.tenMon}</h3>
+                        <p class="item-price">${Number(mon.gia).toLocaleString()}₫</p>
+                        <button class="btn add-to-cart" 
+                                onclick="addToCart('${mon._id}')"
+                                ${mon.trangThai !== 'con_hang' ? 'disabled' : ''}>
+                            ${mon.trangThai === 'con_hang' ? 'Thêm vào giỏ' : 'Hết hàng'}
+                        </button>
+                        <button class="btn like-btn ${mon.yeuThich ? 'liked' : ''}" 
+                                onclick="toggleFavorite('${mon._id}', this)">
+                            ${mon.yeuThich ? 'Đã thích' : 'Thích'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+    
+        // Hiển thị lỗi
+        function showError(message) {
+            document.getElementById('menuContainer').innerHTML = `
+                <div class="error-message">
+                    <p>${message}</p>
+                    <p>Vui lòng thử lại sau hoặc liên hệ quản trị viên</p>
+                </div>
+            `;
+        }
+    
+        // Thêm vào giỏ hàng
+        function addToCart(itemId) {
+            alert(`Đã thêm món ăn vào giỏ hàng (ID: ${itemId})`);
+        }
+    
+        // Cập nhật yêu thích (gọi API PUT)
+        async function toggleFavorite(itemId, button) {
+            try {
+                const response = await fetch(`http://localhost:3000/api/mon-an/${itemId}/like`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+    
+                if (!response.ok) {
+                    const error = await response.json().catch(() => null);
+                    throw new Error(error?.message || 'Lỗi khi cập nhật yêu thích');
+                }
+    
+                const updatedItem = await response.json();
+    
+                // Cập nhật nút UI
+                button.classList.toggle('liked');
+                button.textContent = updatedItem.yeuThich ? 'Đã thích' : 'Thích';
+    
+                // Cập nhật dữ liệu local
+                const index = monAnList.findIndex(item => item._id === itemId);
+                if (index !== -1) {
+                    monAnList[index] = updatedItem;
+                }
+    
+            } catch (error) {
+                console.error('Lỗi khi cập nhật yêu thích:', error);
+                alert('Có lỗi xảy ra: ' + error.message);
+            }
+        }
+    
+        // Lọc dữ liệu menu theo tìm kiếm, danh mục, yêu thích
+        function filterMenu() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+            const favoriteOnly = document.getElementById('favoriteFilter').checked;
+    
+            const filtered = monAnList.filter(item => {
+                const matchSearch = item.tenMon.toLowerCase().includes(searchTerm);
+                const matchCategory = category === 'all' || item.danhMuc === category;
+                const matchFavorite = !favoriteOnly || item.yeuThich;
+                return matchSearch && matchCategory && matchFavorite;
+            });
+    
+            renderMenu(filtered);
+        }
+    
+        // Gắn sự kiện
+        document.getElementById('searchInput').addEventListener('input', filterMenu);
+        document.getElementById('categoryFilter').addEventListener('change', filterMenu);
+        document.getElementById('favoriteFilter').addEventListener('change', filterMenu);
+    
+        // Khởi tạo
+        document.addEventListener('DOMContentLoaded', fetchMonAn);
+    </script>
 </body>
 </html>

@@ -153,6 +153,7 @@ router.get('/:idUser', async (req, res) => {
             sdt: user.sdt,
             ngayTao: user.ngayTao,
             diemTichLuy: user.diemTichLuy
+
         });
     } catch (error) {
         console.error('Lỗi khi lấy thông tin người dùng:', error);

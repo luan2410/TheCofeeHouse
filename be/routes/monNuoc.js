@@ -52,6 +52,7 @@ router.put('/:id/like', async (req, res) => {
     }
 });
 
+
 router.get('/types', async (req, res) => {
     try {
         const types = await MonNuoc.distinct('loai');
@@ -77,5 +78,6 @@ router.get('/search', async (req, res) => {
         res.status(500).json({ message: 'Lỗi khi tìm kiếm món nước', error: err });
     }
 });
+
 
 module.exports = router;

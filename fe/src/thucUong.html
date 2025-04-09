@@ -383,6 +383,7 @@
                 displayMenu(monNuoc);
                 displayFavorite(monNuoc);
                 await fetchTypes();
+
             } catch (error) {
                 console.error('Lỗi khi tải dữ liệu:', error);
                 document.getElementById('menuGrid').innerHTML = `
@@ -472,6 +473,7 @@
                 if (index !== -1) {
                     monNuoc[index].yeuThich = updatedMon.yeuThich;
                     displayFavorite(monNuoc);
+
                 }
             } catch (error) {
                 console.error('Lỗi khi thích món:', error);
