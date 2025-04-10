@@ -9,7 +9,8 @@ const monNuocSchema = new mongoose.Schema({
     yeuThich: { type: Number, default: 0 },
     gia: { type: Number, required: true },
     hinhAnh: { type: String },
-    moTa: { type: String }
+    moTa: { type: String },
+    likedBy: [{ type: String, ref: 'User' }]
 });
 
 const MonNuoc = mongoose.model('MonNuoc', monNuocSchema, 'monNuoc');
@@ -39,20 +40,43 @@ router.post('/', async (req, res) => {
     }
 });
 
+const { ObjectId } = mongoose.Types;
+
 router.put('/:id/like', async (req, res) => {
+    const { idUser } = req.body;
+
+    if (!idUser) {
+        return res.status(400).json({ message: 'Vui lòng cung cấp idUser' });
+    }
+
+    if (!ObjectId.isValid(req.params.id)) {
+        return res.status(400).json({ message: 'ID món nước không hợp lệ' });
+    }
+
     try {
+        const userExists = await mongoose.model('User').findOne({ idUser });
+        if (!userExists) {
+            return res.status(404).json({ message: 'Người dùng không tồn tại' });
+        }
+
         const monNuoc = await MonNuoc.findById(req.params.id);
         if (!monNuoc) {
             return res.status(404).json({ message: 'Không tìm thấy món nước' });
         }
-        monNuoc.yeuThich += 1; // Tăng lượt thích lên 1
+
+        if (monNuoc.likedBy.includes(idUser)) {
+            return res.status(400).json({ message: 'Bạn đã thích món này rồi!' });
+        }
+
+        monNuoc.likedBy.push(idUser);
+        monNuoc.yeuThich += 1;
+
         const updatedMonNuoc = await monNuoc.save();
         res.json(updatedMonNuoc);
     } catch (err) {
-        res.status(500).json({ message: 'Lỗi khi cập nhật lượt thích', error: err });
+        res.status(500).json({ message: 'Lỗi khi cập nhật lượt thích', error: err.message });
     }
 });
-
 
 
 router.get('/types', async (req, res) => {
@@ -66,10 +90,10 @@ router.get('/types', async (req, res) => {
 
 router.get('/search', async (req, res) => {
     try {
-        const { ten, loai } = req.query; 
+        const { ten, loai } = req.query;
         const query = {};
         if (ten) {
-            query.ten = { $regex: ten, $options: 'i' }; 
+            query.ten = { $regex: ten, $options: 'i' };
 
         }
         if (loai) {
