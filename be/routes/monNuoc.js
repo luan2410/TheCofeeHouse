@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const router = express.Router();
 
 const monNuocSchema = new mongoose.Schema({
-    idMonNuoc: { type: String, required: true, unique: true },
+
     ten: { type: String, required: true },
     loai: { type: String, required: true },
     yeuThich: { type: Number, default: 0 },
@@ -24,38 +24,13 @@ router.get('/', async (req, res) => {
 });
 
 
-// Định nghĩa schema cho Counter 
-const counterNuocSchema = new mongoose.Schema({
-    _id: { type: String, required: true }, // Ví dụ: 'idMonNuoc'
-    seq: { type: Number, default: 0 }
-});
-const CounterNuoc = mongoose.models.Counter || mongoose.model('CounterNuoc', counterNuocSchema);
-
-// Hàm tạo idUser tự động 
-async function getNextNuocId() {
-    const counter = await CounterNuoc.findOneAndUpdate(
-        { _id: 'idMonNuoc' },
-        { $inc: { seq: 1 } },
-        { new: true, upsert: true }
-    );
-    return `N${String(counter.seq).padStart(3, '0')}`;
-}
-
 router.post('/', async (req, res) => {
+    const { ten, loai, yeuThich, gia, hinhAnh, moTa } = req.body;
+    const monNuocMoi = new MonNuoc({
+        ten, loai, yeuThich, gia, hinhAnh, moTa
+    });
+
     try {
-        const { ten, loai, yeuThich, gia, hinhAnh, moTa } = req.body;
-
-        const idMonNuoc = await getNextNuocId();
-
-        const monNuocMoi = new MonNuoc({
-            idMonNuoc,
-            ten,
-            loai,
-            yeuThich,
-            gia,
-            hinhAnh,
-            moTa
-        });
 
         const savedMonNuoc = await monNuocMoi.save();
         res.status(201).json(savedMonNuoc);
@@ -78,6 +53,8 @@ router.put('/:id/like', async (req, res) => {
     }
 });
 
+
+
 router.get('/types', async (req, res) => {
     try {
         const types = await MonNuoc.distinct('loai');
@@ -89,10 +66,11 @@ router.get('/types', async (req, res) => {
 
 router.get('/search', async (req, res) => {
     try {
-        const { ten, loai } = req.query;
+        const { ten, loai } = req.query; 
         const query = {};
         if (ten) {
-            query.ten = { $regex: ten, $options: 'i' };
+            query.ten = { $regex: ten, $options: 'i' }; 
+
         }
         if (loai) {
             query.loai = loai;
@@ -103,5 +81,6 @@ router.get('/search', async (req, res) => {
         res.status(500).json({ message: 'Lỗi khi tìm kiếm món nước', error: err });
     }
 });
+
 
 module.exports = router;

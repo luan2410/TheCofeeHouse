@@ -5,15 +5,10 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang chủ</title>
-
-    <!-- font awesome cdn link  -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="css/bootstrap.css">
-    <!-- custom css file link  -->
     <link rel="stylesheet" href="css/style.css">
-
-
+    <title>Trang chủ</title>
 </head>
 
 <body>
@@ -30,9 +25,10 @@
             <a href="index.html">Trang chủ</a>
             <a href="thucUong.html">Thức uống</a>
             <a href="monAn.html">Món ăn</a>
-            <a href="dangKy.html">Đăng ký</a>
-            <a href="dangNhap.html">Đăng nhập</a>
-            <a href="bangxephang.html">Bảng xếp hạng</a>
+            <!-- <a href="dangKy.html">Đăng ký</a>
+            <a href="dangNhap.html">Đăng nhập</a> -->
+            <!-- <a href="#blogs">Tin tức</a> -->
+
         </nav>
 
         <div class="icons">
@@ -96,7 +92,7 @@
             <h3>Thưởng thức ly cà phê thơm ngon mỗi buổi sáng</h3>
             <p>Bắt đầu ngày mới tràn đầy năng lượng với hương vị cà phê đậm đà, quyến rũ – một khởi đầu hoàn hảo cho mọi
                 hành trình.</p>
-            <a href="#" class="btn">Đặt ngay</a>
+            <a href="dangNhap.html" class="btn">Đặt ngay</a>
         </div>
 
     </section>
@@ -321,8 +317,8 @@
 
         <h1 class="heading"> bài viết <span>mới nhất</span> </h1>
 
-        <div class="box-container">
-
+        <div class="box-container" id="blog-container">
+            
             <div class="box">
                 <div class="image">
                     <img src="../data/images/blog-1.jpeg" alt="">
@@ -363,11 +359,7 @@
 
     </section>
 
-
-    <!-- blogs section ends -->
-
-    <!-- footer section starts  -->
-
+// footer 
     <section class="footer">
 
         <div class="share">
@@ -378,15 +370,7 @@
             <a href="#" class="fab fa-pinterest"></a>
         </div>
 
-        <div class="links">
-            <a href="#home">Trang chủ</a>
-            <a href="#about">Giới thiệu</a>
-            <a href="#menu">Thực đơn</a>
-            <a href="#products">Món ăn</a>
-            <a href="#review">Đánh giá</a>
-            <a href="#blogs">Tin tức</a>
-        </div>
-
+    
         <div class="container" style="color: white; font-size: 25px; text-align: left;">
             <div class="row">
                 <div class="col-6">
@@ -420,31 +404,52 @@
                 </div>
             </div>
         </div>
-
-
+    
     </section>
-
-    <!-- footer section ends -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <!-- custom js file link  -->
+    
     <script src="js/script.js"></script>
     <script src="js/bootstrap.js"></script>
+    <script>
+        // lam ngan lai noi dung cua blog
+        function shortenContent(content, wordLimit) {
+            const words = content.split(' ');
+            if (words.length <= wordLimit) return content;
+            return words.slice(0, wordLimit).join(' ') + '...';
+        }
+        async function loadBlogs() {
+            try {
+                const response = await fetch('http://localhost:3000/api/blogs');
+                const blogs = await response.json();
+                const container = document.getElementById('blog-container');
+                container.innerHTML = ''; // Xoá blog mẫu cũ (nếu có)
+    
+                blogs.forEach(blog => {
+                    const box = document.createElement('div');
+                    box.className = 'box';
+    
+                    box.innerHTML = `
+                        <div class="image">
+                            <img src="${blog.image || '../data/images/blog-1.jpeg'}" alt="">
+                        </div>
+                        <div class="content">
+                            <a href="#" class="title">${blog.title}</a>
+                            <span>tác giả: ${blog.author} </span>
+                           <p>${shortenContent(blog.content, 60)}</p>
+                          <a href="blog.html?id=${blog._id}" class="btn">đọc thêm</a>
+                        </div>
+                    `;
+    
+                    container.appendChild(box);
+                });
+            } catch (err) {
+                console.error('Lỗi khi tải blog:', err);
+            }
+        }
+    
+        window.onload = loadBlogs;
+    </script>
+        
+        
 
 </body>
 

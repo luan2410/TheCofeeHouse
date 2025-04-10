@@ -293,8 +293,10 @@
             <a href="index.html">Trang chủ</a>
             <a href="thucUong.html">Thức uống</a>
             <a href="monAn.html">Món ăn</a>
-            <a href="dangKy.html">Đăng ký</a>
-            <a href="dangNhap.html">Đăng nhập</a>
+
+            <!-- <a href="dangKy.html">Đăng ký</a>
+            <a href="dangNhap.html">Đăng nhập</a> -->
+
         </nav>
 
         <div class="icons">
@@ -364,7 +366,6 @@
             <div id="favoriteItem" class="favorite-item"></div>
         </div>
     </div>
-    
     <script>
         let monNuoc = [];
 
@@ -383,6 +384,7 @@
                 displayMenu(monNuoc);
                 displayFavorite(monNuoc);
                 await fetchTypes();
+
             } catch (error) {
                 console.error('Lỗi khi tải dữ liệu:', error);
                 document.getElementById('menuGrid').innerHTML = `
@@ -522,12 +524,13 @@
                     throw new Error(`Lỗi HTTP! status: ${response.status}`);
                 }
                 const filteredData = await response.json();
-                monNuoc = filteredData;
+                monNuoc = filteredData; 
                 displayMenu(filteredData);
-                displayFavorite(filteredData);
-            } catch (error) {
-                console.error('Lỗi khi tìm kiếm món nước:', error);
-                document.getElementById('menuGrid').innerHTML = `
+                displayFavorite(filteredData); 
+                    } catch (error) {
+                        console.error('Lỗi khi tìm kiếm món nước:', error);
+                        document.getElementById('menuGrid').innerHTML = `
+
                     <div class="error-message">
                         <p>Không thể tìm kiếm. Vui lòng thử lại sau.</p>
                         <p>${error.message}</p>
