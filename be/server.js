@@ -11,7 +11,7 @@ const userRouter = require('./routes/user_router');
 const blogRouter = require('./routes/blog');
 
 const app = express();
-
+app.use(express.json());
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
