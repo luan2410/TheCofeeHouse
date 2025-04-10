@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Bảng Xếp Hạng</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+
+
+        .container-fluid {
+            background-image: url(../data/images/Yb3IJ9.jpg);
+            background-size: cover;
+            background-repeat: none;
+            background-position: 6%;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: url('image.png') no-repeat center center fixed;
+            background-size: cover;
+            color: #f1f1f1;
+        }
+
+        table {
+            width: 70%;
+            margin: 40px auto;
+            border-collapse: collapse;
+            border-radius: 12px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 30px rgba(0, 255, 128, 0.2);
+        }
+
+        th,
+        td {
+            padding: 12px 16px;
+            text-align: center;
+            color: #f1f1f1;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background-color: rgba(0, 0, 0, 0.4);
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        tr:hover {
+            background-color: rgba(0, 255, 128, 0.1);
+            transform: scale(1.01);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        tr {
+            transition: transform 0.2s ease;
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 40px;
+            color: #ffe082;
+            text-shadow: 0 0 10px #000;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid" style="background-color: black; color: white; height: 100vh;">
+        <h1 style="text-align:center">🏆 Bảng Xếp Hạng Người Dùng</h1>
+        <table id="rankingTable">
+            <thead>
+                <tr>
+                    <th>Hạng</th>
+                    <th>Họ</th>
+                    <th>Tên</th>
+                    <th>SĐT</th>
+                    <th>Điểm Tích Lũy</th>
+                </tr>
+            </thead>
+            <tbody id="rankingBody">
+                <!-- dữ liệu sẽ được thêm vào đây bằng JS -->
+            </tbody>
+        </table>
+    </div>
+
+
+    <script>
+        async function fetchRanking() {
+            try {
+                const response = await fetch('http://localhost:3000/api/user/ranking');
+                const users = await response.json();
+
+                const tableBody = document.getElementById('rankingBody');
+                tableBody.innerHTML = ''; // clear cũ nếu có
+
+                users.forEach((user, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${user.ho}</td>
+            <td>${user.ten}</td>
+            <td>${user.sdt}</td>
+            <td>${user.diemTichLuy}</td>
+          `;
+                    tableBody.appendChild(row);
+                });
+            } catch (err) {
+                console.error('Lỗi khi fetch bảng xếp hạng:', err);
+                alert('Không thể tải bảng xếp hạng. Kiểm tra console!');
+            }
+        }
+
+        // gọi hàm khi trang load
+        window.onload = fetchRanking;
+    </script>
+</body>
+
+</html>

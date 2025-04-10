@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const router = express.Router();
 
 const monNuocSchema = new mongoose.Schema({
+
     ten: { type: String, required: true },
     loai: { type: String, required: true },
     yeuThich: { type: Number, default: 0 },
@@ -23,7 +24,6 @@ router.get('/', async (req, res) => {
 });
 
 
-
 router.post('/', async (req, res) => {
     const { ten, loai, yeuThich, gia, hinhAnh, moTa } = req.body;
     const monNuocMoi = new MonNuoc({
@@ -31,6 +31,7 @@ router.post('/', async (req, res) => {
     });
 
     try {
+
         const savedMonNuoc = await monNuocMoi.save();
         res.status(201).json(savedMonNuoc);
     } catch (err) {
@@ -53,6 +54,7 @@ router.put('/:id/like', async (req, res) => {
 });
 
 
+
 router.get('/types', async (req, res) => {
     try {
         const types = await MonNuoc.distinct('loai');
@@ -68,6 +70,7 @@ router.get('/search', async (req, res) => {
         const query = {};
         if (ten) {
             query.ten = { $regex: ten, $options: 'i' }; 
+
         }
         if (loai) {
             query.loai = loai;
