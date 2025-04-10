@@ -12,6 +12,7 @@
 
 <body>
     <div class="container-fluid" id="form_container">
+
             <h1 class="text-center" id="thongTinCaNhan_title">Thông Tin Cá Nhân</h1>
             <div>
                 <table id="thongTinCaNhan">
@@ -42,7 +43,9 @@
                         style="color: white;text-decoration: none;">Cập nhật
                         thông tin</a></button>
             </div>
+
         </div>
+    </div>
 </body>
 <script>
     window.addEventListener('load', async function () {
@@ -80,7 +83,6 @@
         document.getElementById('tenTaiKhoan').textContent = data.tenTaiKhoan || 'N/A';
         document.getElementById('sdt').textContent = data.sdt || 'N/A';
         document.getElementById('diemtichluy').textContent = data.diemTichLuy || 'N/A';
-
 
     }
 </script>

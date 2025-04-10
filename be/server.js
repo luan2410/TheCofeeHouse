@@ -8,7 +8,7 @@ const testRoutes = require('./routes/testRoutes');
 const monNuocRoutes = require('./routes/monNuoc');
 const monAnRoutes = require('./routes/monAn');
 const userRouter = require('./routes/user_router');
-const blogRouter = require('./routes/blog'); 
+const blogRouter = require('./routes/blog');
 
 const app = express();
 
