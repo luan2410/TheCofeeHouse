@@ -348,6 +348,10 @@
     <!-- header section ends -->
 
     <div class="container">
+        <div class="favorite-section">
+            <h2>Món Được Yêu Thích Nhất</h2>
+            <div id="favoriteItem" class="favorite-item"></div>
+        </div>
         <div class="header-title">
             <h1>Menu Món Nước</h1>
         </div>
@@ -361,12 +365,10 @@
 
         <div id="menuGrid" class="menu-grid"></div>
 
-        <div class="favorite-section">
-            <h2>Món Được Yêu Thích Nhất</h2>
-            <div id="favoriteItem" class="favorite-item"></div>
-        </div>
+
     </div>
     <script>
+
         let monNuoc = [];
 
         async function fetchMonNuoc() {
@@ -403,9 +405,13 @@
                     throw new Error(`Lỗi HTTP! status: ${response.status}`);
                 }
                 const types = await response.json();
+                if (!Array.isArray(types)) {
+                    throw new Error('Dữ liệu loại đồ uống không phải là mảng');
+                }
                 console.log('Danh sách loại đồ uống:', types);
 
                 const typeFilter = document.getElementById('typeFilter');
+                typeFilter.innerHTML = '<option value="">Tất cả</option>'; // Reset dropdown
                 types.forEach(type => {
                     const option = document.createElement('option');
                     option.value = type;
@@ -442,42 +448,62 @@
         }
 
         async function likeItem(id, button) {
+            const idUser = localStorage.getItem('idUser');
+            if (!idUser) {
+                alert('Vui lòng đăng nhập để thích món này!');
+                window.location.href = 'dangNhap.html';
+                return;
+            }
+
             if (!id) {
                 console.error('ID không hợp lệ:', id);
                 alert('Không thể thích món này vì ID không hợp lệ!');
                 return;
             }
+
+            if (!button) {
+                console.error('Button không hợp lệ:', button);
+                alert('Không thể thích món này vì lỗi giao diện!');
+                return;
+            }
+
             try {
                 const response = await fetch(`http://localhost:3000/api/mon-nuoc/${id}/like`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                     },
+                    body: JSON.stringify({ idUser })
                 });
+
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.message || 'Lỗi khi cập nhật lượt thích');
                 }
+
                 const updatedMon = await response.json();
 
-                const likeCountElement = button.previousElementSibling.previousElementSibling.querySelector('.like-count');
-
+                // Tìm phần tử .like-count từ phần tử cha của button
+                const itemContent = button.closest('.item-content');
+                const likeCountElement = itemContent?.querySelector('.like-count');
                 if (likeCountElement) {
                     likeCountElement.textContent = updatedMon.yeuThich;
                 } else {
-                    console.error('Không tìm thấy phần tử like-count:', button);
+                    console.error('Không tìm thấy phần tử like-count:', itemContent);
                     alert('Không thể cập nhật lượt thích trên giao diện!');
                     return;
                 }
 
+                // Cập nhật mảng monNuoc và hiển thị lại món yêu thích
                 const index = monNuoc.findIndex(mon => mon._id === id);
                 if (index !== -1) {
                     monNuoc[index].yeuThich = updatedMon.yeuThich;
+                    monNuoc[index].likedBy = updatedMon.likedBy;
                     displayFavorite(monNuoc);
                 }
             } catch (error) {
                 console.error('Lỗi khi thích món:', error);
-                alert(`Không thể thích món này: ${error.message}`);
+                alert(`${error.message}`);
             }
         }
 
@@ -524,12 +550,12 @@
                     throw new Error(`Lỗi HTTP! status: ${response.status}`);
                 }
                 const filteredData = await response.json();
-                monNuoc = filteredData; 
+                monNuoc = filteredData;
                 displayMenu(filteredData);
-                displayFavorite(filteredData); 
-                    } catch (error) {
-                        console.error('Lỗi khi tìm kiếm món nước:', error);
-                        document.getElementById('menuGrid').innerHTML = `
+                displayFavorite(filteredData);
+            } catch (error) {
+                console.error('Lỗi khi tìm kiếm món nước:', error);
+                document.getElementById('menuGrid').innerHTML = `
 
                     <div class="error-message">
                         <p>Không thể tìm kiếm. Vui lòng thử lại sau.</p>
