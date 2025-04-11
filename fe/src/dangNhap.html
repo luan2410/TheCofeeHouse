@@ -18,10 +18,12 @@
                     <h1>Đăng nhập</h1>
                     <form action="" class="">
                         <div class="mb-4 ">
-                            <input class="form-control" id="" type="text" placeholder="Tên tài khoản" aria-label="">
+                            <input class="form-control" id="username" type="text" placeholder="Tên tài khoản"
+                                aria-label="">
                         </div>
                         <div class="mb-4 ">
-                            <input class="form-control" id="" type="password" placeholder="Mật khẩu" aria-label="">
+                            <input class="form-control" id="password" type="password" placeholder="Mật khẩu"
+                                aria-label="">
                         </div>
                         <a href="dangKy.html" style="text-align: right; color: #616161;margin-bottom: 20px;">Quên mật
                             khẩu</a>
@@ -39,10 +41,16 @@
     </div>
     <script>
         document.querySelector('form').addEventListener('submit', async function (e) {
-            e.preventDefault(); // Ngăn submit mặc định
+            e.preventDefault(); // Ngăn submit form reload trang
 
-            const tenTaiKhoan = document.querySelector('input[type="text"]').value;
-            const matKhau = document.querySelector('input[type="password"]').value;
+            // Lấy giá trị từ input
+            const tenTaiKhoan = document.getElementById('username').value.trim();
+            const matKhau = document.getElementById('password').value;
+
+            if (!tenTaiKhoan || !matKhau) {
+                alert("Vui lòng nhập tên tài khoản và mật khẩu");
+                return;
+            }
 
             try {
                 const response = await fetch('http://localhost:3000/api/user/login', {
@@ -52,20 +60,31 @@
                     },
                     body: JSON.stringify({ tenTaiKhoan, matKhau })
                 });
+
                 const data = await response.json();
+                console.log("👉 Dữ liệu response từ server:", data); // log toàn bộ dữ liệu
+
                 if (response.status === 200) {
-                    console.log(data.idUser);
-                    localStorage.setItem('idUser', data.idUser);// Lưu idUser vào localStorage
-                    window.location.href = "index.html"
+                    if (data.idUser) {
+                        localStorage.setItem('idUser', data.idUser);
+                        console.log("✅ idUser lưu vào localStorage:", data.idUser);
+                        window.location.href = "index.html";
+                    } else {
+                        alert("Không tìm thấy idUser trong dữ liệu phản hồi.");
+                        console.log("⚠️ Dữ liệu thiếu idUser:", data);
+                    }
                 } else {
-                    alert(data.message);
+                    alert(data.message || "Đăng nhập thất bại");
                 }
             } catch (error) {
                 console.error('Lỗi:', error);
-                alert('Lỗi kết nối tới server');
+                alert('Không thể kết nối đến máy chủ');
             }
         });
     </script>
+
+
+
 
 </body>
 
