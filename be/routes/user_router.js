@@ -24,122 +24,111 @@ router.post('/login', async (req, res) => {
         tenTaiKhoan: Joi.string().required(),
         matKhau: Joi.string().required()
     });
+
     const { error } = schema.validate(req.body);
     if (error) return res.status(400).json({ message: error.details[0].message });
 
     try {
+        // Dùng .lean() để lấy plain object
         const user = await User.findOne({
             tenTaiKhoan: req.body.tenTaiKhoan,
-            matKhau: req.body.matKhau // 👈 nên hash ở thực tế nhé
+            matKhau: req.body.matKhau
+        }).lean(); // 👈 THÊM DÒNG NÀY
 
-        });
+        if (!user) {
+            console.log("❌ Không tìm thấy user với tài khoản:", req.body.tenTaiKhoan);
+            return res.status(401).json({ message: "Sai tài khoản hoặc mật khẩu" });
+        }
 
-        if (!user) return res.status(401).json({ message: "Sai tài khoản hoặc mật khẩu" });
-        res.status(200).json({
+        console.log("✅ User tìm thấy:", user);
+        console.log("👉 idUser:", user.idUser); // Giờ sẽ không undefined nữa
+
+        return res.status(200).json({
             message: "Đăng nhập thành công",
-            idUser: user.idUser, // Chỉ cần trả về idUser thay vì toàn bộ user
+            idUser: user.idUser
         });
-        // res.status(200).json({ message: "Đăng nhập thành công", user });
-        // res.redirect('http://localhost:3000/index.html');
+
     } catch (err) {
-        res.status(500).json({ message: "Lỗi server", error: err });
+        console.error("❌ Lỗi server:", err);
+        return res.status(500).json({ message: "Lỗi server", error: err.message });
     }
-    console.log("✅ Dữ liệu nhận được:", req.body); // Thêm dòng này
 });
 
 
 
-// Định nghĩa schema cho Counter 
+
+
+
+const schema = Joi.object({
+    ho: Joi.string().required().messages({
+        "any.required": "Họ là bắt buộc",
+        "string.empty": "Họ không được để trống"
+    }),
+    ten: Joi.string().required().messages({
+        "any.required": "Tên là bắt buộc",
+        "string.empty": "Tên không được để trống"
+    }),
+    tenTaiKhoan: Joi.string().required().messages({
+        "any.required": "Tên tài khoản là bắt buộc",
+        "string.empty": "Tên tài khoản không được để trống"
+    }),
+    matKhau: Joi.string().required().messages({
+        "any.required": "Mật khẩu là bắt buộc",
+        "string.empty": "Mật khẩu không được để trống"
+    }),
+    sdt: Joi.string().required().messages({
+        "any.required": "Số điện thoại là bắt buộc",
+        "string.empty": "Số điện thoại không được để trống"
+    })
+});
+
+// Định nghĩa schema cho Counter trong cùng file Router
 const counterSchema = new mongoose.Schema({
-    _id: { type: String, required: true }, // Ví dụ: 'userId'
-    seq: { type: Number, default: 0 }
+    _id: { type: String, required: true }, // Định danh bộ đếm, ví dụ: 'userId'
+    seq: { type: Number, default: 0 } // Giá trị bộ đếm
 });
 const Counter = mongoose.models.Counter || mongoose.model('Counter', counterSchema);
 
-// Hàm tạo idUser tự động 
 async function getNextUserId() {
     const counter = await Counter.findOneAndUpdate(
-        { _id: 'userId' },
-        { $inc: { seq: 1 } },
-        { new: true, upsert: true }
+        { _id: 'userId' },  // Sử dụng _id để xác định bộ đếm
+        { $inc: { seq: 1 } }, // Tăng bộ đếm lên 1
+        { new: true, upsert: true }  // Tạo mới nếu không tồn tại
     );
-    return `U${String(counter.seq).padStart(3, '0')}`;
+    return `U${String(counter.seq).padStart(3, '0')}`; // Trả về ID theo định dạng "U001"
 }
 
-// Joi schema cho đăng ký
-const registerSchema = Joi.object({
-    ho: Joi.string()
-        .required()
-        .pattern(/^[A-Z][a-zA-Z]*$/)
-        .messages({
-            "string.pattern.base": "Họ phải bắt đầu bằng chữ cái viết hoa và chỉ chứa chữ cái",
-            "any.required": "Họ là trường bắt buộc"
-        }),
-
-    ten: Joi.string()
-        .required()
-        .pattern(/^[A-Z][a-zA-Z]*$/)
-        .messages({
-            "string.pattern.base": "Tên phải bắt đầu bằng chữ cái viết hoa và chỉ chứa chữ cái",
-            "any.required": "Tên là trường bắt buộc"
-        }),
-
-    tenTaiKhoan: Joi.string()
-        .required()
-        .min(4)
-        .messages({
-            "string.empty": "Tên tài khoản không được để trống",
-            "string.min": "Tên tài khoản phải có ít nhất 4 ký tự",
-            "any.required": "Tên tài khoản là trường bắt buộc"
-        }),
-
-    matKhau: Joi.string()
-        .required()
-        .min(8)
-        .pattern(/^(?=.*[A-Z])(?=.*\d)/)
-        .messages({
-            "string.min": "Mật khẩu phải có ít nhất 8 ký tự",
-            "string.pattern.base": "Mật khẩu phải bao gồm ít nhất 1 chữ cái viết hoa và 1 số",
-            "any.required": "Mật khẩu là trường bắt buộc"
-        }),
-
-    sdt: Joi.string()
-        .required()
-        .pattern(/^(09|07|08)\d{8}$/)
-        .messages({
-            "string.pattern.base": "Số điện thoại phải bắt đầu bằng 09, 07 hoặc 08 và có 10 chữ số",
-            "any.required": "Số điện thoại là trường bắt buộc"
-        })
-});
-
-// đăng ký tài khoản 
 router.post('/register', async (req, res) => {
     try {
         // Validate dữ liệu đầu vào
-        const { error } = registerSchema.validate(req.body);
+        const { error } = schema.validate(req.body);
         if (error) {
+            // Trả về lỗi với thông báo chi tiết của từng trường
             return res.status(400).json({
-                message: error.details.map(detail => detail.message).join(', ')
+                message: error.details.map(detail => detail.message).join(', ') // Trả về tất cả lỗi nếu có
             });
         }
 
-        // Kiểm tra trùng tên tài khoản
+        // Kiểm tra xem tên tài khoản đã tồn tại chưa
         const existingUser = await User.findOne({ tenTaiKhoan: req.body.tenTaiKhoan });
         if (existingUser) {
             return res.status(400).json({
                 message: "Tên tài khoản đã tồn tại"
             });
         }
-
-        // Tạo ID tự động cho người dùng mới
+        //tạo ID tự động cho người dùng mới
         const idUser = await getNextUserId();
         const user = new User({
             ...req.body,
             idUser: idUser
         });
-
+        if (!user) {
+            return res.status(400).json({ message: "Tạo tài khoản thất bại" });
+        }
+        // Lưu người dùng vào cơ sở dữ liệu
         await user.save();
 
+        // Thành công, trả về thông báo
         return res.status(201).json({
             message: "Tạo tài khoản thành công",
             user: user
@@ -154,43 +143,21 @@ router.post('/register', async (req, res) => {
     }
 });
 
-router.get('/ranking', async (req, res) => {
-    try {
-        const users = await User.find({}, {
-            _id: 0, ho: 1, ten: 1, sdt: 1, diemTichLuy: 1
-        }).sort({ diemTichLuy: -1 });
-
-        res.json(users);
-    } catch (error) {
-        console.error("Lỗi khi lấy bảng xếp hạng:", error);
-        res.status(500).json({ message: "Lỗi server", error: error.message });
-    }
-});
-
+// GET thông tin người dùng theo idUser
 router.get('/:idUser', async (req, res) => {
-    const { idUser } = req.params;  // Lấy idUser từ URL
-
     try {
-        const user = await User.findOne({ idUser });
+        const { idUser } = req.params;
+        const user = await User.findOne({ idUser }).lean(); // Trả về plain object
 
         if (!user) {
-            return res.status(404).json({ message: 'Người dùng không tồn tại' });
+            return res.status(404).json({ message: 'Không tìm thấy người dùng' });
         }
 
-        // Trả về dữ liệu người dùng nếu tìm thấy
-        res.json({
-            idUser: user.idUser,
-            ho: user.ho,
-            ten: user.ten,
-            tenTaiKhoan: user.tenTaiKhoan,
-            sdt: user.sdt,
-            ngayTao: user.ngayTao,
-            diemTichLuy: user.diemTichLuy
-
-        });
-    } catch (error) {
-        console.error('Lỗi khi lấy thông tin người dùng:', error);
-        res.status(500).json({ message: 'Lỗi hệ thống' });
+        // Trả về thông tin người dùng
+        res.status(200).json(user);
+    } catch (err) {
+        console.error('Lỗi khi lấy thông tin người dùng:', err);
+        res.status(500).json({ message: 'Lỗi server', error: err.message });
     }
 });
 
@@ -265,7 +232,6 @@ router.put('/update/:idUser', async (req, res) => {
         res.status(500).json({ message: 'Lỗi server', error: err.message });
     }
 });
-
 
 
 
