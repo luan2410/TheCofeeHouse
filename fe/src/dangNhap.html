@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang đăng nhập</title>
+    <link rel="stylesheet" href="css/DangNhap.css">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <script src="js/bootstrap.js"></script>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-6">
+                <div class="formDN">
+                    <h1>Đăng nhập</h1>
+                    <form action="" class="">
+                        <div class="mb-4 ">
+                            <input class="form-control" id="" type="text" placeholder="Tên tài khoản" aria-label="">
+                        </div>
+                        <div class="mb-4 ">
+                            <input class="form-control" id="" type="password" placeholder="Mật khẩu" aria-label="">
+                        </div>
+                        <a href="dangKy.html" style="text-align: right; color: #616161;margin-bottom: 20px;">Quên mật
+                            khẩu</a>
+                        <button class="btn btn-dark">Đăng nhập</button>
+                    </form>
+                    <label>Bạn chưa có tài khoản?<a style="display: inline-block;" href="dangKy.html">Đăng kí
+                            ngay</a></label>
+
+                </div>
+            </div>
+            <div class="col-6">
+                &nbsp;
+            </div>
+        </div>
+    </div>
+    <script>
+        document.querySelector('form').addEventListener('submit', async function (e) {
+            e.preventDefault(); // Ngăn submit mặc định
+
+            const tenTaiKhoan = document.querySelector('input[type="text"]').value;
+            const matKhau = document.querySelector('input[type="password"]').value;
+
+            try {
+                const response = await fetch('http://localhost:3000/api/user/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ tenTaiKhoan, matKhau })
+                });
+                const data = await response.json();
+                if (response.status === 200) {
+                    console.log(data.idUser);
+                    localStorage.setItem('idUser', data.idUser);// Lưu idUser vào localStorage
+                    window.location.href = "index.html"
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error('Lỗi:', error);
+                alert('Lỗi kết nối tới server');
+            }
+        });
+    </script>
+
+</body>
+
+</html>
