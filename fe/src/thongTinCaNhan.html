@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thông Tin Cá Nhân</title>
+    <link rel="stylesheet" href="css/Login.css">
     <link rel="stylesheet" href="css/bootstrap.css">
     <link rel="stylesheet" href="css/thongTinCaNhan.css">
 </head>
@@ -40,45 +41,45 @@
                     thông tin</a></button>
         </div>
     </div>
-    <script>
-        window.addEventListener("load", async () => {
-            const idUser = localStorage.getItem("idUser");
-            console.log("🔍 idUser từ localStorage:", idUser);
-
-            if (!idUser) {
-                alert("Bạn chưa đăng nhập!");
-                window.location.href = "dangNhap.html";
-                return;
-            }
-
-            try {
-                const response = await fetch(`http://localhost:3000/api/user/${idUser}`);
-                const user = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(user.message || "Không lấy được thông tin người dùng");
-                }
-
-                console.log("📦 Dữ liệu user:", user);
-
-                // Hiển thị dữ liệu lên HTML
-                document.getElementById("ho").textContent = user.ho || "N/A";
-                document.getElementById("ten").textContent = user.ten || "N/A";
-                document.getElementById("tenTaiKhoan").textContent = user.tenTaiKhoan || "N/A";
-                document.getElementById("sdt").textContent = user.sdt || "N/A";
-                document.getElementById("diemtichluy").textContent = user.diemTichLuy ?? "0";
-
-            } catch (err) {
-                console.error("❌ Lỗi khi lấy dữ liệu:", err);
-                alert("Không thể tải thông tin cá nhân.");
-            }
-        });
-    </script>
-
 </body>
+<script>
+    window.addEventListener('load', async function () {
+        const idUser = localStorage.getItem('idUser');
+        console.log(idUser); // Kiểm tra xem idUser có tồn tại trong localStorage không
+        if (!idUser) {
+            alert('Bạn chưa đăng nhập!');
+            window.location.href = 'dangNhap.html'; // Điều hướng về trang đăng nhập
+            return;
+        }
 
+        try {
+            const response = await fetch(`http://localhost:3000/api/user/${idUser}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            if (response.ok) {
+                // Hiển thị thông tin cá nhân lên giao diện
+                displayUserData(data);
+            } else {
+                alert('Không thể lấy thông tin người dùng');
+            }
+        } catch (error) {
+            console.error('Lỗi:', error);
+            alert('Lỗi kết nối tới server');
+        }
+    });
 
+    function displayUserData(data) {
+        document.getElementById('ho').textContent = data.ho || 'N/A';
+        document.getElementById('ten').textContent = data.ten || 'N/A';
+        document.getElementById('tenTaiKhoan').textContent = data.tenTaiKhoan || 'N/A';
+        document.getElementById('sdt').textContent = data.sdt || 'N/A';
+        document.getElementById('diemtichluy').textContent = data.diemTichLuy || 'N/A';
 
-
+    }
+</script>
 
 </html>

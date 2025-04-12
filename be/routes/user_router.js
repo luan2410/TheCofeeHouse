@@ -29,33 +29,24 @@ router.post('/login', async (req, res) => {
     if (error) return res.status(400).json({ message: error.details[0].message });
 
     try {
-        // Dùng .lean() để lấy plain object
         const user = await User.findOne({
             tenTaiKhoan: req.body.tenTaiKhoan,
-            matKhau: req.body.matKhau
-        }).lean(); // 👈 THÊM DÒNG NÀY
+            matKhau: req.body.matKhau // 👈 nên hash ở thực tế nhé
 
-        if (!user) {
-            console.log("❌ Không tìm thấy user với tài khoản:", req.body.tenTaiKhoan);
-            return res.status(401).json({ message: "Sai tài khoản hoặc mật khẩu" });
-        }
-
-        console.log("✅ User tìm thấy:", user);
-        console.log("👉 idUser:", user.idUser); // Giờ sẽ không undefined nữa
-
-        return res.status(200).json({
-            message: "Đăng nhập thành công",
-            idUser: user.idUser
         });
 
+        if (!user) return res.status(401).json({ message: "Sai tài khoản hoặc mật khẩu" });
+        res.status(200).json({
+            message: "Đăng nhập thành công",
+            idUser: user.idUser, // Chỉ cần trả về idUser thay vì toàn bộ user
+        });
+        // res.status(200).json({ message: "Đăng nhập thành công", user });
+        // res.redirect('http://localhost:3000/index.html');
     } catch (err) {
-        console.error("❌ Lỗi server:", err);
-        return res.status(500).json({ message: "Lỗi server", error: err.message });
+        res.status(500).json({ message: "Lỗi server", error: err });
     }
+    console.log("✅ Dữ liệu nhận được:", req.body); // Thêm dòng này
 });
-
-
-
 
 
 
@@ -143,21 +134,29 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// GET thông tin người dùng theo idUser
 router.get('/:idUser', async (req, res) => {
+    const { idUser } = req.params;  // Lấy idUser từ URL
+
     try {
-        const { idUser } = req.params;
-        const user = await User.findOne({ idUser }).lean(); // Trả về plain object
+        const user = await User.findOne({ idUser });
 
         if (!user) {
-            return res.status(404).json({ message: 'Không tìm thấy người dùng' });
+            return res.status(404).json({ message: 'Người dùng không tồn tại' });
         }
 
-        // Trả về thông tin người dùng
-        res.status(200).json(user);
-    } catch (err) {
-        console.error('Lỗi khi lấy thông tin người dùng:', err);
-        res.status(500).json({ message: 'Lỗi server', error: err.message });
+        // Trả về dữ liệu người dùng nếu tìm thấy
+        res.json({
+            idUser: user.idUser,
+            ho: user.ho,
+            ten: user.ten,
+            tenTaiKhoan: user.tenTaiKhoan,
+            sdt: user.sdt,
+            ngayTao: user.ngayTao,
+            diemTichLuy: user.diemTichLuy
+        });
+    } catch (error) {
+        console.error('Lỗi khi lấy thông tin người dùng:', error);
+        res.status(500).json({ message: 'Lỗi hệ thống' });
     }
 });
 
@@ -170,14 +169,12 @@ router.put('/update/:idUser', async (req, res) => {
     const updateSchema = Joi.object({
         ho: Joi.string()
             .optional()
-            .pattern(/^[A-Z][a-zA-Z]*$/) // Chữ cái đầu viết hoa
             .messages({
                 "string.pattern.base": "Họ phải bắt đầu bằng chữ cái viết hoa và chỉ chứa chữ cái"
             }),
 
         ten: Joi.string()
             .optional()
-            .pattern(/^[A-Z][a-zA-Z]*$/) // Chữ cái đầu viết hoa
             .messages({
                 "string.pattern.base": "Tên phải bắt đầu bằng chữ cái viết hoa và chỉ chứa chữ cái"
             }),
@@ -190,8 +187,7 @@ router.put('/update/:idUser', async (req, res) => {
 
         matKhau: Joi.string()
             .optional()
-            .min(8) // Ít nhất 8 ký tự
-            .pattern(/^(?=.*[A-Z])(?=.*\d)/) // Ít nhất 1 chữ viết hoa và 1 số
+
             .messages({
                 "string.min": "Mật khẩu phải có ít nhất 8 ký tự",
                 "string.pattern.base": "Mật khẩu phải bao gồm ít nhất 1 chữ cái viết hoa và 1 số"
@@ -199,7 +195,6 @@ router.put('/update/:idUser', async (req, res) => {
 
         sdt: Joi.string()
             .optional()
-            .pattern(/^(09|07|08)\d{8}$/) // Số điện thoại phải bắt đầu với 09, 07, hoặc 08 và có 10 ký tự
             .messages({
                 "string.pattern.base": "Số điện thoại phải bắt đầu bằng 09, 07 hoặc 08 và có 10 ký tự"
             })
