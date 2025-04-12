@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8" />
     <title>Bảng Xếp Hạng</title>
+    <link rel="stylesheet" href="css/bootstrap.css" />
+    <script src="../src/js/bootstrap.js"></script>
     <style>
         * {
             margin: 0;
@@ -70,6 +72,13 @@
             color: #ffe082;
             text-shadow: 0 0 10px #000;
         }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
     </style>
 </head>
 
@@ -83,13 +92,20 @@
                     <th>Họ</th>
                     <th>Tên</th>
                     <th>SĐT</th>
-                    <th>Điểm Tích Lũy</th>
+                    <th>Rank</th>
                 </tr>
             </thead>
             <tbody id="rankingBody">
                 <!-- dữ liệu sẽ được thêm vào đây bằng JS -->
             </tbody>
         </table>
+
+        <div class="button-container">
+            <button class="btn btn-dark" style="text-align: center;" onclick="countRank('silver')">Đếm Silver</button>
+            <button class="btn btn-dark" style="text-align: center;" onclick="countRank('gold')">Đếm Gold</button>
+            <button class="btn btn-dark" style="text-align: center;" onclick="countRank('vip')">Đếm VIP</button>
+        </div>
+
     </div>
 
 
@@ -109,13 +125,25 @@
             <td>${user.ho}</td>
             <td>${user.ten}</td>
             <td>${user.sdt}</td>
-            <td>${user.diemTichLuy}</td>
+            <td>${user.rank}</td>
           `;
                     tableBody.appendChild(row);
                 });
             } catch (err) {
                 console.error('Lỗi khi fetch bảng xếp hạng:', err);
                 alert('Không thể tải bảng xếp hạng. Kiểm tra console!');
+            }
+        }
+
+        // Gọi API đếm theo rank
+        async function countRank(rank) {
+            try {
+                const response = await fetch(`http://localhost:3000/api/user/count/${rank}`);
+                const result = await response.json();
+                alert(`Số người có rank "${result.rank}": ${result.count}`);
+            } catch (err) {
+                console.error('Lỗi khi đếm rank:', err);
+                alert('Không thể đếm số người. Kiểm tra console!');
             }
         }
 

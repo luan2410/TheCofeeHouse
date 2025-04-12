@@ -25,6 +25,7 @@
             <a href="index.html">Trang chủ</a>
             <a href="thucUong.html">Thức uống</a>
             <a href="monAn.html">Món ăn</a>
+            <a href="bangxephang.html">Bảng xếp hạng</a>
             <!-- <a href="dangKy.html">Đăng ký</a>
             <a href="dangNhap.html">Đăng nhập</a> -->
             <!-- <a href="#blogs">Tin tức</a> -->
@@ -261,11 +262,10 @@
     <section class="review" id="review">
 
         <h1 class="heading"> Đánh <span> giá </span> </h1>
+        <div class="box-container" id="reviewContainer">
 
-        <div class="box-container">
-
-            <div class="box">
-                <img src="../data/images/quote-img.png" alt="" class="quote">
+            <!-- <div class="box" id="reviewContainer"> -->
+            <!-- <img src="../data/images/quote-img.png" alt="" class="quote">
                 <p>Cà phê ở đây thật sự tuyệt vời! Mỗi lần ghé qua tôi đều cảm thấy được tiếp thêm năng lượng cho cả
                     ngày dài.</p>
                 <img src="../data/images/pic-1.png" class="user" alt="">
@@ -276,11 +276,11 @@
                     <i class="fas fa-star"></i>
                     <i class="fas fa-star"></i>
                     <i class="fas fa-star-half-alt"></i>
-                </div>
-            </div>
+                </div> -->
+            <!-- </div> -->
 
-            <div class="box">
-                <img src="../data/images/quote-img.png" alt="" class="quote">
+            <!-- <div class="box" id="reviewContainer"> -->
+            <!-- <img src="../data/images/quote-img.png" alt="" class="quote">
                 <p>Tôi đặc biệt yêu thích hương vị đậm đà nhưng mượt mà của ly espresso. Không gian quán cũng rất dễ
                     chịu để thư giãn hoặc làm việc.</p>
                 <img src="../data/images/pic-2.png" class="user" alt="">
@@ -291,11 +291,11 @@
                     <i class="fas fa-star"></i>
                     <i class="fas fa-star"></i>
                     <i class="fas fa-star-half-alt"></i>
-                </div>
-            </div>
+                </div> -->
+            <!-- </div> -->
 
-            <div class="box">
-                <img src="../data/images/quote-img.png" alt="" class="quote">
+            <!-- <div class="box" id="reviewContainer"> -->
+            <!-- <img src="../data/images/quote-img.png" alt="" class="quote">
                 <p>Dịch vụ ở đây nhanh nhẹn, nhân viên thân thiện. Mocha đá là món yêu thích của tôi – ngọt vừa phải và
                     cực kỳ thơm!</p>
                 <img src="../data/images/pic-3.png" class="user" alt="">
@@ -306,8 +306,8 @@
                     <i class="fas fa-star"></i>
                     <i class="fas fa-star"></i>
                     <i class="fas fa-star-half-alt"></i>
-                </div>
-            </div>
+                </div> -->
+            <!-- </div> -->
 
         </div>
 
@@ -447,6 +447,33 @@
         }
 
         window.onload = loadBlogs;
+        // lấy thông tin người dùng từ API và hiển thị
+        const ids = ['U001', 'U002', 'U123456']; // Danh sách 3 idUser
+
+        const container = document.getElementById('reviewContainer');
+
+        ids.forEach(idUser => {
+            fetch(`http://localhost:3000/api/user/${idUser}`)
+                .then(res => res.json())
+                .then(data => {
+                    const div = document.createElement('div');
+                    div.className = 'review';
+
+                    div.innerHTML = `
+                        
+                            <img src="${data.img || 'default.png'}" alt="Avatar" class="user">
+                            <h3>${data.ten}</h3>
+                            <p>${data.comment || 'Không có bình luận.'}</p>
+                         
+ 
+                    `;
+
+                    container.appendChild(div);
+                })
+                .catch(error => {
+                    console.error(`❌ Lỗi khi load người dùng ${idUser}:`, error);
+                });
+        });
     </script>
 
 

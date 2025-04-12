@@ -10,11 +10,9 @@ const userSchema = new mongoose.Schema({
     ten: { type: String, required: true },
     tenTaiKhoan: { type: String, required: true, unique: true },
     matKhau: { type: String, required: true },
+    rank: { type: String, enum: ['silver', 'gold', 'vip'], default: 'silver' },
     sdt: { type: String, required: true },
     ngayTao: { type: Date, default: Date.now },
-    diemTichLuy: { type: Number, default: 0 },
-    comment: { type: String, default: "" },
-    img: { type: String, default: "" }
 });
 
 // ✅ Fix lỗi OverwriteModelError:
@@ -91,6 +89,8 @@ async function getNextUserId() {
     return `U${String(counter.seq).padStart(3, '0')}`; // Trả về ID theo định dạng "U001"
 }
 
+
+
 router.post('/register', async (req, res) => {
     try {
         // Validate dữ liệu đầu vào
@@ -136,6 +136,55 @@ router.post('/register', async (req, res) => {
     }
 });
 
+router.get('/ranking', async (req, res) => {
+    try {
+        const users = await User.aggregate([
+            {
+                $addFields: {
+                    rankOrder: {
+                        $switch: {
+                            branches: [
+                                { case: { $eq: ['$rank', 'vip'] }, then: 3 },
+                                { case: { $eq: ['$rank', 'gold'] }, then: 2 },
+                                { case: { $eq: ['$rank', 'silver'] }, then: 1 }
+                            ],
+                            default: 0
+                        }
+                    }
+                }
+            },
+            { $sort: { rankOrder: -1 } },
+            {
+                $project: {
+                    _id: 0,
+                    ho: 1,
+                    ten: 1,
+                    sdt: 1,
+                    rank: 1
+                }
+            }
+        ]);
+
+        res.json(users);
+    } catch (error) {
+        console.error("❌ Lỗi khi lấy bảng xếp hạng:", error);
+        res.status(500).json({ message: "Lỗi server", error: error.message });
+    }
+});
+
+// Đếm số lượng người theo từng rank
+router.get('/count/:rank', async (req, res) => {
+    try {
+        const { rank } = req.params;
+        const count = await User.countDocuments({ rank });
+        res.json({ rank, count });
+    } catch (error) {
+        console.error('Lỗi khi đếm rank:', error);
+        res.status(500).json({ error: 'Lỗi server' });
+    }
+});
+
+
 router.get('/:idUser', async (req, res) => {
     const { idUser } = req.params;  // Lấy idUser từ URL
 
@@ -154,7 +203,9 @@ router.get('/:idUser', async (req, res) => {
             tenTaiKhoan: user.tenTaiKhoan,
             sdt: user.sdt,
             ngayTao: user.ngayTao,
-            diemTichLuy: user.diemTichLuy
+            diemTichLuy: user.diemTichLuy,
+            comment: user.comment,
+            img: user.img
         });
     } catch (error) {
         console.error('Lỗi khi lấy thông tin người dùng:', error);
@@ -171,35 +222,24 @@ router.put('/update/:idUser', async (req, res) => {
     const updateSchema = Joi.object({
         ho: Joi.string()
             .optional()
-            .messages({
-                "string.pattern.base": "Họ phải bắt đầu bằng chữ cái viết hoa và chỉ chứa chữ cái"
-            }),
+        ,
 
         ten: Joi.string()
             .optional()
-            .messages({
-                "string.pattern.base": "Tên phải bắt đầu bằng chữ cái viết hoa và chỉ chứa chữ cái"
-            }),
+        ,
 
         tenTaiKhoan: Joi.string()
             .optional()
-            .messages({
-                "string.empty": "Tên tài khoản không được để trống"
-            }),
+        ,
 
         matKhau: Joi.string()
             .optional()
 
-            .messages({
-                "string.min": "Mật khẩu phải có ít nhất 8 ký tự",
-                "string.pattern.base": "Mật khẩu phải bao gồm ít nhất 1 chữ cái viết hoa và 1 số"
-            }),
+        ,
 
         sdt: Joi.string()
             .optional()
-            .messages({
-                "string.pattern.base": "Số điện thoại phải bắt đầu bằng 09, 07 hoặc 08 và có 10 ký tự"
-            })
+
     });
 
     // Validate dữ liệu từ client
@@ -231,19 +271,7 @@ router.put('/update/:idUser', async (req, res) => {
 });
 
 
-router.get('/ranking', async (req, res) => {
-    try {
-        const topUsers = await User.find().sort({ diemTichLuy: -1 }).limit(5);
-        console.log("📊 Top 5 users:", topUsers); // Log dữ liệu ra console
-        if (topUsers.length === 0) {
-            return res.status(404).json({ message: 'Không có người dùng nào trong hệ thống' });
-        }
-        res.json(topUsers);
-    } catch (err) {
-        console.error('Lỗi khi lấy bảng xếp hạng:', err);
-        res.status(500).json({ message: 'Lỗi server', error: err });
-    }
-});
+
 
 
 
