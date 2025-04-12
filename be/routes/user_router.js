@@ -12,7 +12,9 @@ const userSchema = new mongoose.Schema({
     matKhau: { type: String, required: true },
     sdt: { type: String, required: true },
     ngayTao: { type: Date, default: Date.now },
-    diemTichLuy: { type: Number, default: 0 }
+    diemTichLuy: { type: Number, default: 0 },
+    comment: { type: String, default: "" },
+    img: { type: String, default: "" }
 });
 
 // ✅ Fix lỗi OverwriteModelError:
@@ -227,6 +229,45 @@ router.put('/update/:idUser', async (req, res) => {
         res.status(500).json({ message: 'Lỗi server', error: err.message });
     }
 });
+
+
+router.get('/ranking', async (req, res) => {
+    try {
+        const topUsers = await User.find().sort({ diemTichLuy: -1 }).limit(5);
+        console.log("📊 Top 5 users:", topUsers); // Log dữ liệu ra console
+        if (topUsers.length === 0) {
+            return res.status(404).json({ message: 'Không có người dùng nào trong hệ thống' });
+        }
+        res.json(topUsers);
+    } catch (err) {
+        console.error('Lỗi khi lấy bảng xếp hạng:', err);
+        res.status(500).json({ message: 'Lỗi server', error: err });
+    }
+});
+
+
+
+
+
+
+// API lấy danh sách đánh giá
+router.get('/reviews', async (req, res) => {
+    try {
+        // Truy vấn dữ liệu từ MongoDB để lấy các đánh giá từ collection 'users'
+        const reviews = await User.find({}, 'ho ten comment img'); // Chỉ lấy các trường ho, ten, comment, img
+
+        if (!reviews.length) {
+            return res.status(404).json({ message: 'Không có đánh giá nào' });
+        }
+
+        res.json(reviews); // Trả về danh sách đánh giá
+    } catch (error) {
+        console.error('Lỗi khi lấy danh sách đánh giá:', error);
+        res.status(500).json({ message: 'Lỗi hệ thống', error });
+    }
+});
+
+
 
 
 
