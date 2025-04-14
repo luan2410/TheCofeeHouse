@@ -126,56 +126,9 @@
 
 
     <section class="menu" id="menu">
-
         <h1 class="heading"> our <span>menu</span> </h1>
-
-        <div class="box-container">
-
-            <div class="box">
-                <img src="../data/images/menu-1.png" alt="">
-                <h3>Cà phê sữa đá đậm đà</h3>
-                <div class="price">39.000₫ <span>52.000₫</span></div>
-                <a href="#" class="btn">Thêm vào giỏ</a>
-            </div>
-
-            <div class="box">
-                <img src="../data/images/menu-2.png" alt="">
-                <h3>Latte kem mịn</h3>
-                <div class="price">42.000₫ <span>55.000₫</span></div>
-                <a href="#" class="btn">Thêm vào giỏ</a>
-            </div>
-
-            <div class="box">
-                <img src="../data/images/menu-3.png" alt="">
-                <h3>Espresso nguyên chất</h3>
-                <div class="price">35.000₫ <span>45.000₫</span></div>
-                <a href="#" class="btn">Thêm vào giỏ</a>
-            </div>
-
-            <div class="box">
-                <img src="../data/images/menu-4.png" alt="">
-                <h3>Capuchino thơm béo</h3>
-                <div class="price">40.000₫ <span>50.000₫</span></div>
-                <a href="#" class="btn">Thêm vào giỏ</a>
-            </div>
-
-            <div class="box">
-                <img src="../data/images/menu-5.png" alt="">
-                <h3>Mocha ngọt ngào</h3>
-                <div class="price">43.000₫ <span>56.000₫</span></div>
-                <a href="#" class="btn">Thêm vào giỏ</a>
-            </div>
-
-            <div class="box">
-                <img src="../data/images/menu-6.png" alt="">
-                <h3>Cold brew tươi mát</h3>
-                <div class="price">38.000₫ <span>49.000₫</span></div>
-                <a href="#" class="btn">Thêm vào giỏ</a>
-            </div>
-
-
+        <div class="box-container" id="menu-container">
         </div>
-
     </section>
 
     <!-- menu section ends -->
@@ -410,6 +363,37 @@
     <script src="js/script.js"></script>
     <script src="js/bootstrap.js"></script>
     <script>
+        // Hàm tải danh sách món nước từ API
+        async function loadMenu() {
+            try {
+                const response = await fetch('http://localhost:3000/api/mon-nuoc');
+                if (!response.ok) {
+                    throw new Error(`Lỗi HTTP! status: ${response.status}`);
+                }
+                const menuItems = await response.json();
+                const container = document.getElementById('menu-container');
+                container.innerHTML = ''; // Xóa nội dung cũ (nếu có)
+
+                menuItems.forEach(item => {
+                    const box = document.createElement('div');
+                    box.className = 'box';
+                    box.innerHTML = `
+                        <img src="${item.hinhAnh}" alt="${item.ten}">
+                        <h3>${item.ten}</h3>
+                        <div class="price">${item.gia.toLocaleString()}₫</div>
+                        <a href="#" class="btn">Thêm vào giỏ</a>
+                    `;
+                    container.appendChild(box);
+                });
+            } catch (err) {
+                console.error('Lỗi khi tải menu:', err);
+                document.getElementById('menu-container').innerHTML = `
+                    <div class="error-message">
+                        <p>Không thể tải danh sách món. Vui lòng thử lại sau.</p>
+                    </div>
+                `;
+            }
+        }
         // lam ngan lai noi dung cua blog
         function shortenContent(content, wordLimit) {
             const words = content.split(' ');
@@ -445,8 +429,11 @@
                 console.error('Lỗi khi tải blog:', err);
             }
         }
-
-        window.onload = loadBlogs;
+//////////
+     window.onload = function() {
+            loadMenu();
+            loadBlogs();
+//         window.onload = loadBlogs;
         // lấy thông tin người dùng từ API và hiển thị
         const ids = ['U001', 'U002', 'U123456']; // Danh sách 3 idUser
 
@@ -474,6 +461,12 @@
                     console.error(`❌ Lỗi khi load người dùng ${idUser}:`, error);
                 });
         });
+       };
+/////////
+    
+        
+        
+
     </script>
 
 
