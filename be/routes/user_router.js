@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
     ten: { type: String, required: true },
     tenTaiKhoan: { type: String, required: true, unique: true },
     matKhau: { type: String, required: true },
+    rank: { type: String, enum: ['silver', 'gold', 'vip'], default: 'silver' },
     sdt: { type: String, required: true },
     ngayTao: { type: Date, default: Date.now },
     diemTichLuy: { type: Number, default: 0 }

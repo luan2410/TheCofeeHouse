@@ -432,6 +432,11 @@
                 const imagePath = mon.hinhAnh;
                 const div = document.createElement('div');
                 div.className = 'menu-item';
+                /// LUAN THEM VAO 
+                div.dataset.id = mon._id;
+                div.dataset.category = mon.danhMuc; // hoặc 'mon.category'
+                div.dataset.quantity = 1;
+                ///
                 div.innerHTML = `
                     <img src="${imagePath}" alt="${mon.ten}" class="item-image">
                     <div class="item-content">
@@ -439,7 +444,7 @@
                         <p class="item-desc">${mon.moTa}</p>
                         <p class="item-price">${mon.gia.toLocaleString()}đ</p>
                         <p class="item-like">Lượt thích: <span class="like-count">${mon.yeuThich}</span></p>
-                        <button class="order-btn" onclick="alert('Đã thêm ${mon.ten} vào giỏ hàng!')">Đặt hàng</button>
+                        <button class="order-btn" onclick="addToCart(this)">Đặt hàng</button>
                         <button class="like-btn" onclick="likeItem('${mon._id}', this)">Thích</button>
                     </div>
                 `;
@@ -570,6 +575,53 @@
 
         fetchMonNuoc();
     </script>
+    // luannn
+    <script>
+        async function addToCart(button) {
+            // Lấy sản phẩm từ thẻ HTML
+            const container = button.closest('.menu-item'); // Thẻ div chứa sản phẩm
+            const productId = container.dataset.id; // Lấy id sản phẩm
+            const category = container.dataset.category; // Lấy danh mục sản phẩm
+            const quantity = parseInt(container.dataset.quantity || '1'); // Lấy số lượng sản phẩm
+    
+            // Lấy idUser từ localStorage
+            const userId = localStorage.getItem('idUser');
+    
+            // Kiểm tra nếu chưa đăng nhập
+            if (!userId) {
+                alert("Bạn cần đăng nhập trước khi đặt hàng.");
+                return;
+            }
+    
+            // Gửi request lên server để thêm sản phẩm vào giỏ hàng
+            try {
+                const response = await fetch('http://localhost:3000/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId,        // Gửi idUser
+                        productId,     // Gửi id sản phẩm
+                        category,      // Gửi danh mục
+                        quantity       // Gửi số lượng
+                    })
+                });
+    
+                const data = await response.json();
+                if (response.ok) {
+                    alert(data.message || "Đã thêm vào giỏ hàng!");
+                } else {
+                    alert(data.message || "Có lỗi xảy ra.");
+                }
+            } catch (error) {
+                console.error('Lỗi:', error);
+                alert('Lỗi kết nối tới server');
+            }
+        }
+    </script>
+    
+      
 
     <script src="js/script.js"></script>
     <script src="js/bootstrap.js"></script>

@@ -9,7 +9,8 @@ const monNuocRoutes = require('./routes/monNuoc');
 const monAnRoutes = require('./routes/monAn');
 const userRouter = require('./routes/user_router');
 const blogRouter = require('./routes/blog');
-
+const cartRoutes =require('./routes/cart')
+// const orderRouter = require('./routes/order');
 const app = express();
 
 app.use(cors());
@@ -31,7 +32,8 @@ app.use('/api/mon-nuoc', monNuocRoutes);
 app.use('/api/mon-an', monAnRoutes);
 app.use('/api/user', userRouter);
 app.use('/api', blogRouter);
-
+app.use('/',cartRoutes);
+// app.use('/api/order', orderRouter);
 // Xử lý 404 - Not Found
 app.use((req, res, next) => {
     res.status(404).json({
@@ -54,3 +56,4 @@ app.use((err, req, res, next) => {
 app.listen(3000, () => {
     console.log('🚀 Server chạy tại http://localhost:3000');
 });
+

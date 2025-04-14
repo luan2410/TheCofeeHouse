@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Giỏ Hàng</title>
+</head>
+<body>
+  <h1>🍽️ Demo Giỏ Hàng</h1>
+
+  <!-- Form thêm món vào giỏ -->
+  <h2>🛒 Thêm món vào giỏ</h2>
+  <label>User ID: <input type="text" id="userId" /></label><br>
+  <label>Product ID: <input type="text" id="productId" /></label><br>
+  <label>Loại:
+    <select id="category">
+      <option value="MonAn">Món Ăn</option>
+      <option value="MonNuoc">Món Nước</option>
+    </select>
+  </label><br>
+  <label>Số lượng: <input type="number" id="quantity" min="1" value="1" /></label><br>
+  <button onclick="addToCart()">Thêm vào giỏ</button>
+
+  <hr>
+
+  <!-- Form thanh toán -->
+  <h2>💳 Thanh toán</h2>
+  <label>User ID: <input type="text" id="checkoutUserId" /></label><br>
+  <button onclick="checkout()">Thanh toán ngay</button>
+
+  <script>
+    async function addToCart() {
+      const userId = document.getElementById('userId').value;
+      const productId = document.getElementById('productId').value;
+      const category = document.getElementById('category').value;
+      const quantity = Number(document.getElementById('quantity').value);
+
+      const res = await fetch('http://localhost:3000/cart/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId, productId, category, quantity })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert('✅ Đã thêm vào giỏ hàng');
+        console.log(data.cart);
+      } else {
+        alert('❌ Lỗi: ' + data.message);
+      }
+    }
+
+    async function checkout() {
+      const userId = document.getElementById('checkoutUserId').value;
+
+      const res = await fetch('http://localhost:3000/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert('✅ Thanh toán thành công!');
+        console.log(data.order);
+      } else {
+        alert('❌ Lỗi: ' + data.message);
+      }
+    }
+  </script>
+</body>
+</html>
