@@ -368,12 +368,17 @@
 
     </div>
     <script>
-
         let monNuoc = [];
+        let favoriteMonNuoc = null; // Biến để lưu món được yêu thích nhất (cố định)
 
         async function fetchMonNuoc() {
             try {
-                const response = await fetch('http://localhost:3000/api/mon-nuoc');
+                const response = await fetch('http://localhost:3000/api/mon-nuoc', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
                 if (!response.ok) {
                     throw new Error(`Lỗi HTTP! status: ${response.status}`);
                 }
@@ -383,10 +388,15 @@
                     throw new Error('Không có dữ liệu món nước');
                 }
                 monNuoc = data;
-                displayMenu(monNuoc);
-                displayFavorite(monNuoc);
-                await fetchTypes();
 
+                // Xác định món được yêu thích nhất một lần duy nhất từ toàn bộ danh sách
+                favoriteMonNuoc = monNuoc.reduce((prev, current) =>
+                    (prev.yeuThich > current.yeuThich) ? prev : current
+                );
+
+                displayMenu(monNuoc);
+                displayFavorite(); // Hiển thị món yêu thích nhất (cố định)
+                await fetchTypes();
             } catch (error) {
                 console.error('Lỗi khi tải dữ liệu:', error);
                 document.getElementById('menuGrid').innerHTML = `
@@ -488,7 +498,7 @@
 
                 const updatedMon = await response.json();
 
-                // Tìm phần tử .like-count từ phần tử cha của button
+                // Cập nhật số lượt thích trên giao diện
                 const itemContent = button.closest('.item-content');
                 const likeCountElement = itemContent?.querySelector('.like-count');
                 if (likeCountElement) {
@@ -499,38 +509,46 @@
                     return;
                 }
 
-                // Cập nhật mảng monNuoc và hiển thị lại món yêu thích
+                // Cập nhật mảng monNuoc
                 const index = monNuoc.findIndex(mon => mon._id === id);
                 if (index !== -1) {
                     monNuoc[index].yeuThich = updatedMon.yeuThich;
                     monNuoc[index].likedBy = updatedMon.likedBy;
-                    displayFavorite(monNuoc);
                 }
+
+                // Cập nhật lại favoriteMonNuoc nếu món vừa được thích là món yêu thích nhất
+                if (favoriteMonNuoc._id === id) {
+                    favoriteMonNuoc.yeuThich = updatedMon.yeuThich;
+                    favoriteMonNuoc.likedBy = updatedMon.likedBy;
+                } else {
+                    // Kiểm tra xem món vừa được thích có vượt qua món yêu thích nhất hiện tại không
+                    if (updatedMon.yeuThich > favoriteMonNuoc.yeuThich) {
+                        favoriteMonNuoc = updatedMon;
+                    }
+                }
+                displayFavorite(); // Cập nhật lại phần hiển thị món yêu thích nhất
             } catch (error) {
                 console.error('Lỗi khi thích món:', error);
                 alert(`${error.message}`);
             }
         }
 
-        function displayFavorite(list) {
+        function displayFavorite() {
             const favoriteItem = document.getElementById('favoriteItem');
-            if (!list || list.length === 0) {
+            if (!favoriteMonNuoc) {
                 favoriteItem.innerHTML = '<p>Chưa có món nào được yêu thích</p>';
                 return;
             }
             try {
-                const favorite = list.reduce((prev, current) =>
-                    (prev.yeuThich > current.yeuThich) ? prev : current
-                );
                 favoriteItem.innerHTML = `
-            <img src="${favorite.hinhAnh}" alt="${favorite.ten}" class="favorite-image">
-            <div class="favorite-content">
-                <h3>${favorite.ten}</h3>
-                <p class="item-desc">${favorite.moTa}</p>
-                <p class="item-price">${favorite.gia.toLocaleString()}đ</p>
-                <p class="item-like">Lượt thích: <span class="like-count">${favorite.yeuThich}</span></p>
-            </div>
-        `;
+                    <img src="${favoriteMonNuoc.hinhAnh}" alt="${favoriteMonNuoc.ten}" class="favorite-image">
+                    <div class="favorite-content">
+                        <h3>${favoriteMonNuoc.ten}</h3>
+                        <p class="item-desc">${favoriteMonNuoc.moTa}</p>
+                        <p class="item-price">${favoriteMonNuoc.gia.toLocaleString()}đ</p>
+                        <p class="item-like">Lượt thích: <span class="like-count">${favoriteMonNuoc.yeuThich}</span></p>
+                    </div>
+                `;
             } catch (error) {
                 console.error('Lỗi khi hiển thị món yêu thích:', error);
                 favoriteItem.innerHTML = '<p>Lỗi khi hiển thị món yêu thích</p>';
@@ -557,11 +575,10 @@
                 const filteredData = await response.json();
                 monNuoc = filteredData;
                 displayMenu(filteredData);
-                displayFavorite(filteredData);
+                // Không gọi displayFavorite() ở đây để giữ món yêu thích nhất cố định
             } catch (error) {
                 console.error('Lỗi khi tìm kiếm món nước:', error);
                 document.getElementById('menuGrid').innerHTML = `
-
                     <div class="error-message">
                         <p>Không thể tìm kiếm. Vui lòng thử lại sau.</p>
                         <p>${error.message}</p>

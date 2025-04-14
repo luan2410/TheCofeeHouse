@@ -13,7 +13,6 @@ const userSchema = new mongoose.Schema({
     rank: { type: String, enum: ['silver', 'gold', 'vip'], default: 'silver' },
     sdt: { type: String, required: true },
     ngayTao: { type: Date, default: Date.now },
-    diemTichLuy: { type: Number, default: 0 }
 });
 
 // ✅ Fix lỗi OverwriteModelError:
@@ -51,97 +50,78 @@ router.post('/login', async (req, res) => {
 
 
 
-// Định nghĩa schema cho Counter 
+const schema = Joi.object({
+    ho: Joi.string().required().messages({
+        "any.required": "Họ là bắt buộc",
+        "string.empty": "Họ không được để trống"
+    }),
+    ten: Joi.string().required().messages({
+        "any.required": "Tên là bắt buộc",
+        "string.empty": "Tên không được để trống"
+    }),
+    tenTaiKhoan: Joi.string().required().messages({
+        "any.required": "Tên tài khoản là bắt buộc",
+        "string.empty": "Tên tài khoản không được để trống"
+    }),
+    matKhau: Joi.string().required().messages({
+        "any.required": "Mật khẩu là bắt buộc",
+        "string.empty": "Mật khẩu không được để trống"
+    }),
+    sdt: Joi.string().required().messages({
+        "any.required": "Số điện thoại là bắt buộc",
+        "string.empty": "Số điện thoại không được để trống"
+    })
+});
+
+// Định nghĩa schema cho Counter trong cùng file Router
 const counterSchema = new mongoose.Schema({
-    _id: { type: String, required: true }, // Ví dụ: 'userId'
-    seq: { type: Number, default: 0 }
+    _id: { type: String, required: true }, // Định danh bộ đếm, ví dụ: 'userId'
+    seq: { type: Number, default: 0 } // Giá trị bộ đếm
 });
 const Counter = mongoose.models.Counter || mongoose.model('Counter', counterSchema);
 
-// Hàm tạo idUser tự động 
 async function getNextUserId() {
     const counter = await Counter.findOneAndUpdate(
-        { _id: 'userId' },
-        { $inc: { seq: 1 } },
-        { new: true, upsert: true }
+        { _id: 'userId' },  // Sử dụng _id để xác định bộ đếm
+        { $inc: { seq: 1 } }, // Tăng bộ đếm lên 1
+        { new: true, upsert: true }  // Tạo mới nếu không tồn tại
     );
-    return `U${String(counter.seq).padStart(3, '0')}`;
+    return `U${String(counter.seq).padStart(3, '0')}`; // Trả về ID theo định dạng "U001"
 }
 
-// Joi schema cho đăng ký
-const registerSchema = Joi.object({
-    ho: Joi.string()
-        .required()
-        .pattern(/^[A-Z][a-zA-Z]*$/)
-        .messages({
-            "string.pattern.base": "Họ phải bắt đầu bằng chữ cái viết hoa và chỉ chứa chữ cái",
-            "any.required": "Họ là trường bắt buộc"
-        }),
 
-    ten: Joi.string()
-        .required()
-        .pattern(/^[A-Z][a-zA-Z]*$/)
-        .messages({
-            "string.pattern.base": "Tên phải bắt đầu bằng chữ cái viết hoa và chỉ chứa chữ cái",
-            "any.required": "Tên là trường bắt buộc"
-        }),
 
-    tenTaiKhoan: Joi.string()
-        .required()
-        .min(4)
-        .messages({
-            "string.empty": "Tên tài khoản không được để trống",
-            "string.min": "Tên tài khoản phải có ít nhất 4 ký tự",
-            "any.required": "Tên tài khoản là trường bắt buộc"
-        }),
-
-    matKhau: Joi.string()
-        .required()
-        .min(8)
-        .pattern(/^(?=.*[A-Z])(?=.*\d)/)
-        .messages({
-            "string.min": "Mật khẩu phải có ít nhất 8 ký tự",
-            "string.pattern.base": "Mật khẩu phải bao gồm ít nhất 1 chữ cái viết hoa và 1 số",
-            "any.required": "Mật khẩu là trường bắt buộc"
-        }),
-
-    sdt: Joi.string()
-        .required()
-        .pattern(/^(09|07|08)\d{8}$/)
-        .messages({
-            "string.pattern.base": "Số điện thoại phải bắt đầu bằng 09, 07 hoặc 08 và có 10 chữ số",
-            "any.required": "Số điện thoại là trường bắt buộc"
-        })
-});
-
-// đăng ký tài khoản 
 router.post('/register', async (req, res) => {
     try {
         // Validate dữ liệu đầu vào
-        const { error } = registerSchema.validate(req.body);
+        const { error } = schema.validate(req.body);
         if (error) {
+            // Trả về lỗi với thông báo chi tiết của từng trường
             return res.status(400).json({
-                message: error.details.map(detail => detail.message).join(', ')
+                message: error.details.map(detail => detail.message).join(', ') // Trả về tất cả lỗi nếu có
             });
         }
 
-        // Kiểm tra trùng tên tài khoản
+        // Kiểm tra xem tên tài khoản đã tồn tại chưa
         const existingUser = await User.findOne({ tenTaiKhoan: req.body.tenTaiKhoan });
         if (existingUser) {
             return res.status(400).json({
                 message: "Tên tài khoản đã tồn tại"
             });
         }
-
-        // Tạo ID tự động cho người dùng mới
+        //tạo ID tự động cho người dùng mới
         const idUser = await getNextUserId();
         const user = new User({
             ...req.body,
             idUser: idUser
         });
-
+        if (!user) {
+            return res.status(400).json({ message: "Tạo tài khoản thất bại" });
+        }
+        // Lưu người dùng vào cơ sở dữ liệu
         await user.save();
 
+        // Thành công, trả về thông báo
         return res.status(201).json({
             message: "Tạo tài khoản thành công",
             user: user
@@ -158,16 +138,52 @@ router.post('/register', async (req, res) => {
 
 router.get('/ranking', async (req, res) => {
     try {
-        const users = await User.find({}, {
-            _id: 0, ho: 1, ten: 1, sdt: 1, diemTichLuy: 1
-        }).sort({ diemTichLuy: -1 });
+        const users = await User.aggregate([
+            {
+                $addFields: {
+                    rankOrder: {
+                        $switch: {
+                            branches: [
+                                { case: { $eq: ['$rank', 'vip'] }, then: 3 },
+                                { case: { $eq: ['$rank', 'gold'] }, then: 2 },
+                                { case: { $eq: ['$rank', 'silver'] }, then: 1 }
+                            ],
+                            default: 0
+                        }
+                    }
+                }
+            },
+            { $sort: { rankOrder: -1 } },
+            {
+                $project: {
+                    _id: 0,
+                    ho: 1,
+                    ten: 1,
+                    sdt: 1,
+                    rank: 1
+                }
+            }
+        ]);
 
         res.json(users);
     } catch (error) {
-        console.error("Lỗi khi lấy bảng xếp hạng:", error);
+        console.error("❌ Lỗi khi lấy bảng xếp hạng:", error);
         res.status(500).json({ message: "Lỗi server", error: error.message });
     }
 });
+
+// Đếm số lượng người theo từng rank
+router.get('/count/:rank', async (req, res) => {
+    try {
+        const { rank } = req.params;
+        const count = await User.countDocuments({ rank });
+        res.json({ rank, count });
+    } catch (error) {
+        console.error('Lỗi khi đếm rank:', error);
+        res.status(500).json({ error: 'Lỗi server' });
+    }
+});
+
 
 router.get('/:idUser', async (req, res) => {
     const { idUser } = req.params;  // Lấy idUser từ URL
@@ -187,8 +203,9 @@ router.get('/:idUser', async (req, res) => {
             tenTaiKhoan: user.tenTaiKhoan,
             sdt: user.sdt,
             ngayTao: user.ngayTao,
-            diemTichLuy: user.diemTichLuy
-
+            diemTichLuy: user.diemTichLuy,
+            comment: user.comment,
+            img: user.img
         });
     } catch (error) {
         console.error('Lỗi khi lấy thông tin người dùng:', error);
@@ -205,39 +222,24 @@ router.put('/update/:idUser', async (req, res) => {
     const updateSchema = Joi.object({
         ho: Joi.string()
             .optional()
-            .pattern(/^[A-Z][a-zA-Z]*$/) // Chữ cái đầu viết hoa
-            .messages({
-                "string.pattern.base": "Họ phải bắt đầu bằng chữ cái viết hoa và chỉ chứa chữ cái"
-            }),
+        ,
 
         ten: Joi.string()
             .optional()
-            .pattern(/^[A-Z][a-zA-Z]*$/) // Chữ cái đầu viết hoa
-            .messages({
-                "string.pattern.base": "Tên phải bắt đầu bằng chữ cái viết hoa và chỉ chứa chữ cái"
-            }),
+        ,
 
         tenTaiKhoan: Joi.string()
             .optional()
-            .messages({
-                "string.empty": "Tên tài khoản không được để trống"
-            }),
+        ,
 
         matKhau: Joi.string()
             .optional()
-            .min(8) // Ít nhất 8 ký tự
-            .pattern(/^(?=.*[A-Z])(?=.*\d)/) // Ít nhất 1 chữ viết hoa và 1 số
-            .messages({
-                "string.min": "Mật khẩu phải có ít nhất 8 ký tự",
-                "string.pattern.base": "Mật khẩu phải bao gồm ít nhất 1 chữ cái viết hoa và 1 số"
-            }),
+
+        ,
 
         sdt: Joi.string()
             .optional()
-            .pattern(/^(09|07|08)\d{8}$/) // Số điện thoại phải bắt đầu với 09, 07, hoặc 08 và có 10 ký tự
-            .messages({
-                "string.pattern.base": "Số điện thoại phải bắt đầu bằng 09, 07 hoặc 08 và có 10 ký tự"
-            })
+
     });
 
     // Validate dữ liệu từ client
@@ -267,6 +269,32 @@ router.put('/update/:idUser', async (req, res) => {
         res.status(500).json({ message: 'Lỗi server', error: err.message });
     }
 });
+
+
+
+
+
+
+
+
+
+// API lấy danh sách đánh giá
+router.get('/reviews', async (req, res) => {
+    try {
+        // Truy vấn dữ liệu từ MongoDB để lấy các đánh giá từ collection 'users'
+        const reviews = await User.find({}, 'ho ten comment img'); // Chỉ lấy các trường ho, ten, comment, img
+
+        if (!reviews.length) {
+            return res.status(404).json({ message: 'Không có đánh giá nào' });
+        }
+
+        res.json(reviews); // Trả về danh sách đánh giá
+    } catch (error) {
+        console.error('Lỗi khi lấy danh sách đánh giá:', error);
+        res.status(500).json({ message: 'Lỗi hệ thống', error });
+    }
+});
+
 
 
 

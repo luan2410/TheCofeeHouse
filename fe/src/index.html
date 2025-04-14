@@ -25,6 +25,7 @@
             <a href="index.html">Trang chủ</a>
             <a href="thucUong.html">Thức uống</a>
             <a href="monAn.html">Món ăn</a>
+            <a href="bangxephang.html">Bảng xếp hạng</a>
             <!-- <a href="dangKy.html">Đăng ký</a>
             <a href="dangNhap.html">Đăng nhập</a> -->
             <!-- <a href="#blogs">Tin tức</a> -->
@@ -34,8 +35,12 @@
         <div class="icons">
             <div id="user-btn" style="display: inline-block;"><a href="thongTinCaNhan.html"><i
                         class="fas fa-user"></i></a></div>
-            <div class="fas fa-shopping-cart" id="cart-btn"> </div>
-            <div class="fas fa-bars" id="menu-btn"></div>
+
+            <div class="fas fa-search" id="search-btn"></div>
+            <div class="shopping-btn" id="cart-btn" style="display: inline;">
+                <a href="gioHang.html"><i class="fas fa-shopping-cart"></i></a>
+            </div>
+
         </div>
 
         <!-- <div class="search-form">
@@ -122,56 +127,9 @@
 
 
     <section class="menu" id="menu">
-
         <h1 class="heading"> our <span>menu</span> </h1>
-
-        <div class="box-container">
-
-            <div class="box">
-                <img src="../data/images/menu-1.png" alt="">
-                <h3>Cà phê sữa đá đậm đà</h3>
-                <div class="price">39.000₫ <span>52.000₫</span></div>
-                <a href="#" class="btn">Thêm vào giỏ</a>
-            </div>
-
-            <div class="box">
-                <img src="../data/images/menu-2.png" alt="">
-                <h3>Latte kem mịn</h3>
-                <div class="price">42.000₫ <span>55.000₫</span></div>
-                <a href="#" class="btn">Thêm vào giỏ</a>
-            </div>
-
-            <div class="box">
-                <img src="../data/images/menu-3.png" alt="">
-                <h3>Espresso nguyên chất</h3>
-                <div class="price">35.000₫ <span>45.000₫</span></div>
-                <a href="#" class="btn">Thêm vào giỏ</a>
-            </div>
-
-            <div class="box">
-                <img src="../data/images/menu-4.png" alt="">
-                <h3>Capuchino thơm béo</h3>
-                <div class="price">40.000₫ <span>50.000₫</span></div>
-                <a href="#" class="btn">Thêm vào giỏ</a>
-            </div>
-
-            <div class="box">
-                <img src="../data/images/menu-5.png" alt="">
-                <h3>Mocha ngọt ngào</h3>
-                <div class="price">43.000₫ <span>56.000₫</span></div>
-                <a href="#" class="btn">Thêm vào giỏ</a>
-            </div>
-
-            <div class="box">
-                <img src="../data/images/menu-6.png" alt="">
-                <h3>Cold brew tươi mát</h3>
-                <div class="price">38.000₫ <span>49.000₫</span></div>
-                <a href="#" class="btn">Thêm vào giỏ</a>
-            </div>
-
-
+        <div class="box-container" id="menu-container">
         </div>
-
     </section>
 
     <!-- menu section ends -->
@@ -258,11 +216,10 @@
     <section class="review" id="review">
 
         <h1 class="heading"> Đánh <span> giá </span> </h1>
+        <div class="box-container" id="reviewContainer">
 
-        <div class="box-container">
-
-            <div class="box">
-                <img src="../data/images/quote-img.png" alt="" class="quote">
+            <!-- <div class="box" id="reviewContainer"> -->
+            <!-- <img src="../data/images/quote-img.png" alt="" class="quote">
                 <p>Cà phê ở đây thật sự tuyệt vời! Mỗi lần ghé qua tôi đều cảm thấy được tiếp thêm năng lượng cho cả
                     ngày dài.</p>
                 <img src="../data/images/pic-1.png" class="user" alt="">
@@ -273,11 +230,11 @@
                     <i class="fas fa-star"></i>
                     <i class="fas fa-star"></i>
                     <i class="fas fa-star-half-alt"></i>
-                </div>
-            </div>
+                </div> -->
+            <!-- </div> -->
 
-            <div class="box">
-                <img src="../data/images/quote-img.png" alt="" class="quote">
+            <!-- <div class="box" id="reviewContainer"> -->
+            <!-- <img src="../data/images/quote-img.png" alt="" class="quote">
                 <p>Tôi đặc biệt yêu thích hương vị đậm đà nhưng mượt mà của ly espresso. Không gian quán cũng rất dễ
                     chịu để thư giãn hoặc làm việc.</p>
                 <img src="../data/images/pic-2.png" class="user" alt="">
@@ -288,11 +245,11 @@
                     <i class="fas fa-star"></i>
                     <i class="fas fa-star"></i>
                     <i class="fas fa-star-half-alt"></i>
-                </div>
-            </div>
+                </div> -->
+            <!-- </div> -->
 
-            <div class="box">
-                <img src="../data/images/quote-img.png" alt="" class="quote">
+            <!-- <div class="box" id="reviewContainer"> -->
+            <!-- <img src="../data/images/quote-img.png" alt="" class="quote">
                 <p>Dịch vụ ở đây nhanh nhẹn, nhân viên thân thiện. Mocha đá là món yêu thích của tôi – ngọt vừa phải và
                     cực kỳ thơm!</p>
                 <img src="../data/images/pic-3.png" class="user" alt="">
@@ -303,8 +260,8 @@
                     <i class="fas fa-star"></i>
                     <i class="fas fa-star"></i>
                     <i class="fas fa-star-half-alt"></i>
-                </div>
-            </div>
+                </div> -->
+            <!-- </div> -->
 
         </div>
 
@@ -315,7 +272,7 @@
         <h1 class="heading"> bài viết <span>mới nhất</span> </h1>
 
         <div class="box-container" id="blog-container">
-            
+
             <div class="box">
                 <div class="image">
                     <img src="../data/images/blog-1.jpeg" alt="">
@@ -356,7 +313,7 @@
 
     </section>
 
-// footer 
+    // footer
     <section class="footer">
 
         <div class="share">
@@ -367,7 +324,7 @@
             <a href="#" class="fab fa-pinterest"></a>
         </div>
 
-    
+
         <div class="container" style="color: white; font-size: 25px; text-align: left;">
             <div class="row">
                 <div class="col-6">
@@ -401,12 +358,43 @@
                 </div>
             </div>
         </div>
-    
+
     </section>
-    
+
     <script src="js/script.js"></script>
     <script src="js/bootstrap.js"></script>
     <script>
+        // Hàm tải danh sách món nước từ API
+        async function loadMenu() {
+            try {
+                const response = await fetch('http://localhost:3000/api/mon-nuoc');
+                if (!response.ok) {
+                    throw new Error(`Lỗi HTTP! status: ${response.status}`);
+                }
+                const menuItems = await response.json();
+                const container = document.getElementById('menu-container');
+                container.innerHTML = ''; // Xóa nội dung cũ (nếu có)
+
+                menuItems.forEach(item => {
+                    const box = document.createElement('div');
+                    box.className = 'box';
+                    box.innerHTML = `
+                        <img src="${item.hinhAnh}" alt="${item.ten}">
+                        <h3>${item.ten}</h3>
+                        <div class="price">${item.gia.toLocaleString()}₫</div>
+                        <a href="#" class="btn">Thêm vào giỏ</a>
+                    `;
+                    container.appendChild(box);
+                });
+            } catch (err) {
+                console.error('Lỗi khi tải menu:', err);
+                document.getElementById('menu-container').innerHTML = `
+                    <div class="error-message">
+                        <p>Không thể tải danh sách món. Vui lòng thử lại sau.</p>
+                    </div>
+                `;
+            }
+        }
         // lam ngan lai noi dung cua blog
         function shortenContent(content, wordLimit) {
             const words = content.split(' ');
@@ -419,11 +407,11 @@
                 const blogs = await response.json();
                 const container = document.getElementById('blog-container');
                 container.innerHTML = ''; // Xoá blog mẫu cũ (nếu có)
-    
+
                 blogs.forEach(blog => {
                     const box = document.createElement('div');
                     box.className = 'box';
-    
+
                     box.innerHTML = `
                         <div class="image">
                             <img src="${blog.image || '../data/images/blog-1.jpeg'}" alt="">
@@ -435,18 +423,54 @@
                           <a href="blog.html?id=${blog._id}" class="btn">đọc thêm</a>
                         </div>
                     `;
-    
+
                     container.appendChild(box);
                 });
             } catch (err) {
                 console.error('Lỗi khi tải blog:', err);
             }
         }
+//////////
+     window.onload = function() {
+            loadMenu();
+            loadBlogs();
+//         window.onload = loadBlogs;
+        // lấy thông tin người dùng từ API và hiển thị
+        const ids = ['U001', 'U002', 'U123456']; // Danh sách 3 idUser
+
+        const container = document.getElementById('reviewContainer');
+
+        ids.forEach(idUser => {
+            fetch(`http://localhost:3000/api/user/${idUser}`)
+                .then(res => res.json())
+                .then(data => {
+                    const div = document.createElement('div');
+                    div.className = 'review';
+
+                    div.innerHTML = `
+                        
+                            <img src="${data.img || 'default.png'}" alt="Avatar" class="user">
+                            <h3>${data.ten}</h3>
+                            <p>${data.comment || 'Không có bình luận.'}</p>
+                         
+ 
+                    `;
+
+                    container.appendChild(div);
+                })
+                .catch(error => {
+                    console.error(`❌ Lỗi khi load người dùng ${idUser}:`, error);
+                });
+        });
+       };
+/////////
     
-        window.onload = loadBlogs;
+        
+        
+
     </script>
-        
-        
+
+
 
 </body>
 
