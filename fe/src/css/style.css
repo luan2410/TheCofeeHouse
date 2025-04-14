@@ -389,27 +389,27 @@ section {
     gap: 1.5rem;
 }
 
-.review .box-container .box {
+.review .box-container {
     border: var(--border);
     text-align: center;
     padding: 3rem 2rem;
 }
 
-.review .box-container .box p {
+.review .box-container p {
     font-size: 1.5rem;
     line-height: 1.8;
     color: #ccc;
     padding: 2rem 0;
 }
 
-.review .box-container .box .user {
+.review .box-container .user {
     height: 7rem;
     width: 7rem;
     border-radius: 50%;
     object-fit: cover;
 }
 
-.review .box-container .box h3 {
+.review .box-container h3 {
     padding: 1rem 0;
     font-size: 2rem;
     color: #fff;
