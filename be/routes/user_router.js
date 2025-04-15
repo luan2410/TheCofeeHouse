@@ -38,7 +38,8 @@ router.post('/login', async (req, res) => {
         if (!user) return res.status(401).json({ message: "Sai tài khoản hoặc mật khẩu" });
         res.status(200).json({
             message: "Đăng nhập thành công",
-            idUser: user.idUser, // Chỉ cần trả về idUser thay vì toàn bộ user
+            idUser: user.idUser,// Chỉ cần trả về idUser thay vì toàn bộ user
+            _id: user._id , // luan them
         });
         // res.status(200).json({ message: "Đăng nhập thành công", user });
         // res.redirect('http://localhost:3000/index.html');

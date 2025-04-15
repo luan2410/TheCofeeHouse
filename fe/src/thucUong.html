@@ -444,7 +444,7 @@
                 div.className = 'menu-item';
                 /// LUAN THEM VAO 
                 div.dataset.id = mon._id;
-                div.dataset.category = mon.danhMuc; // hoặc 'mon.category'
+                div.dataset.category = 'MonNuoc';
                 div.dataset.quantity = 1;
                 ///
                 div.innerHTML = `
@@ -454,7 +454,7 @@
                         <p class="item-desc">${mon.moTa}</p>
                         <p class="item-price">${mon.gia.toLocaleString()}đ</p>
                         <p class="item-like">Lượt thích: <span class="like-count">${mon.yeuThich}</span></p>
-                        <button class="order-btn" onclick="addToCart(this)">Đặt hàng</button>
+                        <button class="order-btn" onclick="addToCart(this)">Đặt hàng</button> 
                         <button class="like-btn" onclick="likeItem('${mon._id}', this)">Thích</button>
                     </div>
                 `;
@@ -595,47 +595,41 @@
     // luannn
     <script>
         async function addToCart(button) {
-            // Lấy sản phẩm từ thẻ HTML
-            const container = button.closest('.menu-item'); // Thẻ div chứa sản phẩm
-            const productId = container.dataset.id; // Lấy id sản phẩm
-            const category = container.dataset.category; // Lấy danh mục sản phẩm
-            const quantity = parseInt(container.dataset.quantity || '1'); // Lấy số lượng sản phẩm
-    
-            // Lấy idUser từ localStorage
-            const userId = localStorage.getItem('idUser');
-    
-            // Kiểm tra nếu chưa đăng nhập
-            if (!userId) {
-                alert("Bạn cần đăng nhập trước khi đặt hàng.");
-                return;
-            }
-    
-            // Gửi request lên server để thêm sản phẩm vào giỏ hàng
-            try {
-                const response = await fetch('http://localhost:3000/add', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        userId,        // Gửi idUser
-                        productId,     // Gửi id sản phẩm
-                        category,      // Gửi danh mục
-                        quantity       // Gửi số lượng
-                    })
-                });
-    
-                const data = await response.json();
-                if (response.ok) {
-                    alert(data.message || "Đã thêm vào giỏ hàng!");
-                } else {
-                    alert(data.message || "Có lỗi xảy ra.");
-                }
-            } catch (error) {
-                console.error('Lỗi:', error);
-                alert('Lỗi kết nối tới server');
-            }
+    const container = button.closest('.menu-item');
+    const productId = container.dataset.id;
+    const category = container.dataset.category;
+    const quantity = parseInt(container.dataset.quantity || '1');
+    const userId = localStorage.getItem('_id');
+
+    if (!userId) {
+        alert("Bạn cần đăng nhập trước khi đặt hàng.");
+        return;
+    }
+
+    // ✅ Kiểm tra category trước khi gửi
+    if (!category || !['MonAn', 'MonNuoc'].includes(category)) {
+        alert("Sản phẩm không có danh mục hợp lệ.");
+        return;
+    }
+
+    try {
+        const response = await fetch('http://localhost:3000/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, productId, category, quantity })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            alert(data.message || "Đã thêm vào giỏ hàng!");
+        } else {
+            alert(data.message || "Có lỗi xảy ra.");
         }
+    } catch (error) {
+        console.error('Lỗi:', error);
+        alert('Lỗi kết nối tới server');
+    }
+}
     </script>
     
       
