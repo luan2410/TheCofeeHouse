@@ -344,24 +344,24 @@
                 console.error('Lỗi khi tải blog:', err);
             }
         }
-//////////
-     window.onload = function() {
+        //////////
+        window.onload = function () {
             loadMenu();
             loadBlogs();
-//         window.onload = loadBlogs;
-        // lấy thông tin người dùng từ API và hiển thị
-        const ids = ['U001', 'U002', 'U123456']; // Danh sách 3 idUser
+            //         window.onload = loadBlogs;
+            // lấy thông tin người dùng từ API và hiển thị
+            const ids = ['U001', 'U002', 'U123456']; // Danh sách 3 idUser
 
-        const container = document.getElementById('reviewContainer');
+            const container = document.getElementById('reviewContainer');
 
-        ids.forEach(idUser => {
-            fetch(`http://localhost:3000/api/user/${idUser}`)
-                .then(res => res.json())
-                .then(data => {
-                    const div = document.createElement('div');
-                    div.className = 'review';
+            ids.forEach(idUser => {
+                fetch(`http://localhost:3000/api/user/${idUser}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        const div = document.createElement('div');
+                        div.className = 'review';
 
-                    div.innerHTML = `
+                        div.innerHTML = `
                         
                             <img src="${data.img || 'default.png'}" alt="Avatar" class="user">
                             <h3>${data.ten}</h3>
@@ -378,7 +378,6 @@
         });
        };
 
-         
 
     </script>
 

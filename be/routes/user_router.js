@@ -13,6 +13,8 @@ const userSchema = new mongoose.Schema({
     rank: { type: String, enum: ['silver', 'gold', 'vip'], default: 'silver' },
     sdt: { type: String, required: true },
     ngayTao: { type: Date, default: Date.now },
+    comment: { type: String }, // Thêm trường comment
+    img: { type: String }
 });
 
 // ✅ Fix lỗi OverwriteModelError:
@@ -276,25 +278,6 @@ router.put('/update/:idUser', async (req, res) => {
 
 
 
-
-
-
-// API lấy danh sách đánh giá
-router.get('/reviews', async (req, res) => {
-    try {
-        // Truy vấn dữ liệu từ MongoDB để lấy các đánh giá từ collection 'users'
-        const reviews = await User.find({}, 'ho ten comment img'); // Chỉ lấy các trường ho, ten, comment, img
-
-        if (!reviews.length) {
-            return res.status(404).json({ message: 'Không có đánh giá nào' });
-        }
-
-        res.json(reviews); // Trả về danh sách đánh giá
-    } catch (error) {
-        console.error('Lỗi khi lấy danh sách đánh giá:', error);
-        res.status(500).json({ message: 'Lỗi hệ thống', error });
-    }
-});
 
 
 
