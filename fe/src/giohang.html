@@ -3,73 +3,197 @@
 <head>
   <meta charset="UTF-8">
   <title>Giỏ Hàng</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      padding: 20px;
+      margin: 0;
+    }
+
+    h1 {
+      text-align: center;
+      color: #ff5e1f;
+    }
+
+    #cart {
+      max-width: 800px;
+      margin: 20px auto;
+      background: #c0b8b8;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .cart-item {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+      padding: 15px 0;
+    }
+
+    .cart-item img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .item-details {
+      flex: 1;
+    }
+
+    .item-details p {
+      margin: 5px 0;
+    }
+
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    button {
+      padding: 5px 12px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      background-color: #ff5e1f;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    #total {
+      text-align: right;
+      font-size: 20px;
+      margin-top: 15px;
+      color: #ff5e1f;
+    }
+
+    #checkout-btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background-color: #28a745;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    #checkout-btn:hover {
+      background-color: #218838;
+    }
+
+    @media (max-width: 600px) {
+      .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>🍽️ Demo Giỏ Hàng</h1>
-
-  <!-- Form thêm món vào giỏ -->
-  <h2>🛒 Thêm món vào giỏ</h2>
-  <label>User ID: <input type="text" id="userId" /></label><br>
-  <label>Product ID: <input type="text" id="productId" /></label><br>
-  <label>Loại:
-    <select id="category">
-      <option value="MonAn">Món Ăn</option>
-      <option value="MonNuoc">Món Nước</option>
-    </select>
-  </label><br>
-  <label>Số lượng: <input type="number" id="quantity" min="1" value="1" /></label><br>
-  <button onclick="addToCart()">Thêm vào giỏ</button>
-
-  <hr>
-
-  <!-- Form thanh toán -->
-  <h2>💳 Thanh toán</h2>
-  <label>User ID: <input type="text" id="checkoutUserId" /></label><br>
-  <button onclick="checkout()">Thanh toán ngay</button>
+  <h1>Giỏ Hàng Của Bạn</h1>
+  <div id="cart"></div>
+  <h3 id="total"></h3>
+  <button id="checkout-btn" onclick="checkout()">Thanh toán</button>
 
   <script>
-    async function addToCart() {
-      const userId = document.getElementById('userId').value;
-      const productId = document.getElementById('productId').value;
-      const category = document.getElementById('category').value;
-      const quantity = Number(document.getElementById('quantity').value);
+    const userId = localStorage.getItem('_id');
 
-      const res = await fetch('http://localhost:3000/cart/add', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId, productId, category, quantity })
-      });
+    function updateQuantity(productId, category, currentQty, change) {
+      const newQty = currentQty + change;
+      if (newQty < 0) return;
 
-      const data = await res.json();
-      if (res.ok) {
-        alert('✅ Đã thêm vào giỏ hàng');
-        console.log(data.cart);
-      } else {
-        alert('❌ Lỗi: ' + data.message);
-      }
+      fetch('http://localhost:3000/update', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, productId, category, quantity: newQty })
+      })
+      .then(res => res.json())
+      .then(() => loadCart())
+      .catch(err => console.error('Lỗi khi cập nhật số lượng:', err));
     }
 
-    async function checkout() {
-      const userId = document.getElementById('checkoutUserId').value;
+    function loadCart() {
+      fetch(`http://localhost:3000/${userId}`)
+        .then(res => res.json())
+        .then(data => {
+          const cartContainer = document.getElementById('cart');
+          const totalText = document.getElementById('total');
+          cartContainer.innerHTML = '';
 
-      const res = await fetch('http://localhost:3000/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId })
-      });
+          if (data.cart && data.cart.items.length > 0) {
+            data.cart.items.forEach(item => {
+              const product = item.productDetail;
+              const itemDiv = document.createElement('div');
+              itemDiv.className = 'cart-item';
+              itemDiv.innerHTML = `
+                <img src="${product.hinhAnh}" alt="${product.ten || product.tenMon}">
+                <div class="item-details">
+                  <p><strong>${product.ten || product.tenMon}</strong></p>
+                  <p>Giá: ${product.gia} đ</p>
+                  <div class="quantity-controls">
+                    <button onclick="updateQuantity('${item.productId}', '${item.category}', ${item.quantity}, -1)">-</button>
+                    <span>${item.quantity}</span>
+                    <button onclick="updateQuantity('${item.productId}', '${item.category}', ${item.quantity}, 1)">+</button>
+                  </div>
+                </div>
+              `;
+              cartContainer.appendChild(itemDiv);
+            });
 
-      const data = await res.json();
-      if (res.ok) {
-        alert('✅ Thanh toán thành công!');
-        console.log(data.order);
-      } else {
-        alert('❌ Lỗi: ' + data.message);
-      }
+            totalText.innerText = `Tổng cộng: ${data.total} đ`;
+          } else {
+            cartContainer.innerText = 'Giỏ hàng trống';
+            totalText.innerText = '';
+          }
+        })
+        .catch(err => {
+          document.getElementById('cart').innerText = 'Lỗi khi tải giỏ hàng!';
+          console.error(err);
+        });
     }
+
+    function checkout() {
+      const paymentMethod = 'credit_card';  // You can modify this according to the user input
+      const deliveryAddress = 'Some address here';  // Modify this to get actual user input
+      const note = 'Additional instructions';  // Modify as needed
+
+      fetch('http://localhost:3000/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          paymentMethod,
+          deliveryAddress,
+          note
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.message) {
+          alert(data.message);
+          loadCart();  // Reload cart to show updated state after checkout
+        }
+      })
+      .catch(err => {
+        console.error('Thanh toán thất bại:', err);
+        alert('Có lỗi xảy ra khi thanh toán!');
+      });
+    }
+
+    loadCart();
+    setInterval(loadCart, 5000); // cập nhật tự động mỗi 5 giây
   </script>
 </body>
 </html>

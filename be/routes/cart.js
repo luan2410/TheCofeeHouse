@@ -1,8 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
-const MonAn = require('./monAn');
-const MonNuoc = require('./monNuoc');
+const MonAn = require('../models/monAn');
+const MonNuoc = require('../models/monNuoc');
 const User = require('./user_router'); // nếu user.js là file model User
 const Order = require('./order'); // nếu order.js là file model Order
 const moment = require('moment');
@@ -62,38 +62,51 @@ router.post('/add', async (req, res) => {
 
 // Xem giỏ hàng của người dùng
 router.get('/:userId', async (req, res) => {
-  try {
-      const { userId } = req.params;
+    try {
+        const { userId } = req.params;
+        const cart = await Cart.findOne({ userId }).exec();
 
-      const cart = await Cart.findOne({ userId })
-          .populate({
-              path: 'items.productId',
-              select: 'name gia image' // Chọn các trường bạn muốn hiển thị
-          })
-          .exec();
+        if (!cart || cart.items.length === 0) {
+            return res.status(404).json({ message: 'Giỏ hàng trống' });
+        }
 
-      if (!cart) {
-          return res.status(404).json({ message: 'Giỏ hàng trống' });
-      }
+        let total = 0;
 
-      // Tính tổng tiền
-      let total = 0;
-      cart.items.forEach(item => {
-          if (item.productId && item.productId.gia) {
-              total += item.productId.gia * item.quantity;
-          }
-      });
+        // Mảng mới chứa thông tin sản phẩm đầy đủ
+        const populatedItems = await Promise.all(cart.items.map(async item => {
+            let productDetail = null;
 
-      res.json({
-          message: 'Lấy giỏ hàng thành công',
-          cart,
-          total: total
-      });
-  } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Lỗi khi lấy giỏ hàng', error: err.message });
-  }
+            if (item.category === 'MonAn') {
+                productDetail = await MonAn.findById(item.productId).select('tenMon gia hinhAnh').exec();
+            } else if (item.category === 'MonNuoc') {
+                productDetail = await MonNuoc.findById(item.productId).select('ten gia hinhAnh').exec();
+            }
+
+            if (productDetail && productDetail.gia) {
+                total += productDetail.gia * item.quantity;
+            }
+
+            return {
+                ...item.toObject(),
+                productDetail
+            };
+        }));
+
+        res.json({
+            message: 'Lấy giỏ hàng thành công',
+            cart: {
+                ...cart.toObject(),
+                items: populatedItems
+            },
+            total
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Lỗi khi lấy giỏ hàng', error: err.message });
+    }
 });
+
 
 // Cập nhật số lượng sản phẩm trong giỏ hàng
 router.put('/update', async (req, res) => {

@@ -165,8 +165,16 @@
             <a href="dangNhap.html">Đăng nhập</a> -->
         </nav>
         <div class="icons">
-            <div class="fas fa-search" id="search-btn"></div>
-            <div class="fas fa-shopping-cart" id="cart-btn"></div>
+            <div class="fas fa-search"></div>
+            <div class="fas fa-shopping-cart" onclick="document.getElementById('cartModal').style.display = 'block'"></div>
+            <!-- /// model gio hang  -->
+            <div id="cartModal" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%);
+                background:rgb(237, 235, 235); border:1px solid #ebe8e8; z-index:9999; width:400px; height:600px; box-shadow:0 0 10px #301919;">
+                <div style="text-align:right; padding:5px;">
+                    <button onclick="document.getElementById('cartModal').style.display = 'none'">✖</button>
+                </div>
+                <iframe src="giohang.html" width="100%" height="100%" style="border:none;"></iframe>
+            </div>
         </div>
     </header>
 
