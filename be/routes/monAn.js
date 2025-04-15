@@ -1,6 +1,7 @@
+// routes/monAnRoutes.js
 const express = require('express');
 const router = express.Router();
-const MonAn = require('../models/monAn');
+const MonAn = require('../models/monAn'); // Import model MonAn
 
 // Lấy tất cả hoặc tìm kiếm, lọc theo danh mục / yêu thích
 router.get('/', async (req, res) => {

@@ -6,6 +6,9 @@ const testRoutes = require('./routes/testRoutes'); ///  import routes vao` . ở
 const monNuocRoutes = require('./routes/monNuoc');
 const monAnRoutes = require('./routes/monAn');
 const blogRouter = require('./routes/blog');
+
+const cartRoutes =require('./routes/cart')
+// const orderRouter = require('./routes/order');
 const cors = require('cors');
 
 
@@ -28,6 +31,8 @@ app.use('/api/user', userRouter);
 app.use('/api/mon-nuoc', monNuocRoutes);
 app.use('/api/mon-an', monAnRoutes);
 app.use('/api', blogRouter);
+app.use('/',cartRoutes);
+
 // Chạy server
 app.listen(3000, () => {
     console.log('🚀 Server chạy tại http://localhost:3000');

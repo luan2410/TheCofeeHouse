@@ -293,57 +293,21 @@
             <a href="index.html">Trang chủ</a>
             <a href="thucUong.html">Thức uống</a>
             <a href="monAn.html">Món ăn</a>
-
-            <!-- <a href="dangKy.html">Đăng ký</a>
-            <a href="dangNhap.html">Đăng nhập</a> -->
-
         </nav>
 
         <div class="icons">
-            <div class="fas fa-search" id="search-btn"></div>
-            <div class="fas fa-shopping-cart" id="cart-btn"></div>
+            <div class="fas fa-search"></div>
+            <div class="fas fa-shopping-cart" onclick="document.getElementById('cartModal').style.display = 'block'"></div>
+            <!-- /// model gio hang  -->
+            <div id="cartModal" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%);
+                background:rgb(237, 235, 235); border:1px solid #ebe8e8; z-index:9999; width:400px; height:600px; box-shadow:0 0 10px #301919;">
+                <div style="text-align:right; padding:5px;">
+                    <button onclick="document.getElementById('cartModal').style.display = 'none'">✖</button>
+                </div>
+                <iframe src="giohang.html" width="100%" height="100%" style="border:none;"></iframe>
+            </div>
         </div>
-
-        <div class="cart-items-container">
-            <div class="cart-item">
-                <span class="fas fa-times"></span>
-                <img src="../data/images/cart-item-1.png" alt="">
-                <div class="content">
-                    <h3>cart item 01</h3>
-                    <div class="price">$15.99/-</div>
-                </div>
-            </div>
-            <div class="cart-item">
-                <span class="fas fa-times"></span>
-                <img src="../data/images/cart-item-2.png" alt="">
-                <div class="content">
-                    <h3>cart item 02</h3>
-                    <div class="price">$15.99/-</div>
-                </div>
-            </div>
-            <div class="cart-item">
-                <span class="fas fa-times"></span>
-                <img src="../data/images/cart-item-3.png" alt="">
-                <div class="content">
-                    <h3>cart item 03</h3>
-                    <div class="price">$15.99/-</div>
-                </div>
-            </div>
-            <div class="search-form">
-                <input type="search" id="search-box" placeholder="Tìm kiếm...">
-                <label for="search-box" class="fas fa-search"></label>
-            </div>
-            <div class="cart-item">
-                <span class="fas fa-times"></span>
-                <img src="../data/images/cart-item-4.png" alt="">
-                <div class="content">
-                    <h3>cart item 04</h3>
-                    <div class="price">$15.99/-</div>
-                </div>
-            </div>
-
-            <a href="#" class="btn">checkout now</a>
-        </div>
+      
     </header>
     <!-- header section ends -->
 
@@ -365,7 +329,8 @@
 
         <div id="menuGrid" class="menu-grid"></div>
 
-
+        
+        
     </div>
     <script>
         let monNuoc = [];
@@ -442,6 +407,11 @@
                 const imagePath = mon.hinhAnh;
                 const div = document.createElement('div');
                 div.className = 'menu-item';
+                /// LUAN THEM VAO 
+                div.dataset.id = mon._id;
+                div.dataset.category = 'MonNuoc';
+                div.dataset.quantity = 1;
+                ///
                 div.innerHTML = `
                     <img src="${imagePath}" alt="${mon.ten}" class="item-image">
                     <div class="item-content">
@@ -449,7 +419,7 @@
                         <p class="item-desc">${mon.moTa}</p>
                         <p class="item-price">${mon.gia.toLocaleString()}đ</p>
                         <p class="item-like">Lượt thích: <span class="like-count">${mon.yeuThich}</span></p>
-                        <button class="order-btn" onclick="alert('Đã thêm ${mon.ten} vào giỏ hàng!')">Đặt hàng</button>
+                        <button class="order-btn" onclick="addToCart(this)">Đặt hàng</button> 
                         <button class="like-btn" onclick="likeItem('${mon._id}', this)">Thích</button>
                     </div>
                 `;
@@ -587,7 +557,46 @@
 
         fetchMonNuoc();
     </script>
+    // luannn
+    <script>
+        async function addToCart(button) {
+    const container = button.closest('.menu-item');
+    const productId = container.dataset.id;
+    const category = container.dataset.category;
+    const quantity = parseInt(container.dataset.quantity || '1');
+    const userId = localStorage.getItem('_id');
 
+    if (!userId) {
+        alert("Bạn cần đăng nhập trước khi đặt hàng.");
+        return;
+    }
+
+    // ✅ Kiểm tra category trước khi gửi
+    if (!category || !['MonAn', 'MonNuoc'].includes(category)) {
+        alert("Sản phẩm không có danh mục hợp lệ.");
+        return;
+    }
+
+    try {
+        const response = await fetch('http://localhost:3000/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, productId, category, quantity })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            alert(data.message || "Đã thêm vào giỏ hàng!");
+        } else {
+            alert(data.message || "Có lỗi xảy ra.");
+        }
+    } catch (error) {
+        console.error('Lỗi:', error);
+        alert('Lỗi kết nối tới server');
+    }
+}
+    </script>
+    
     <script src="js/script.js"></script>
     <script src="js/bootstrap.js"></script>
 </body>

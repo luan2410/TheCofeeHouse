@@ -28,3 +28,4 @@ monAnSchema.pre('save', function (next) {
 
 // Sửa tại đây: chỉ định rõ collection tên là 'monAn'
 module.exports = mongoose.model('MonAn', monAnSchema, 'monAn');
+
