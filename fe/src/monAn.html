@@ -161,8 +161,8 @@
             <a href="index.html">Trang chủ</a>
             <a href="thucUong.html">Thức uống</a>
             <a href="monAn.html">Món ăn</a>
-            <!-- <a href="dangKy.html">Đăng ký</a>
-            <a href="dangNhap.html">Đăng nhập</a> -->
+            <a href="danhsachdonhang.html">Danh sách đơn hàng</a>
+           
         </nav>
         <div class="icons">
             <div class="fas fa-search"></div>
@@ -181,6 +181,7 @@
     <main class="container">
         <h1 class="heading">Menu <span>Món Ăn</span></h1>
 
+        
         <div class="filter-options">
             <input type="text" id="searchInput" placeholder="Tìm kiếm..." class="search-input">
             <select id="categoryFilter" class="filter-select">
@@ -188,10 +189,8 @@
                 <option value="banh">Bánh ngọt</option>
                 <option value="sandwich">Sandwich</option>
                 <option value="khac">Khác</option>
+                <option value="favorite">Yêu thích</option>
             </select>
-            <label>
-                <input type="checkbox" id="favoriteFilter"> Yêu thích
-            </label>
         </div>
 
         <div id="menuContainer" class="menu-container">
@@ -301,9 +300,8 @@
         });
     }
 
-    
-        // Cập nhật yêu thích (gọi API PUT)
-        async function toggleFavorite(itemId, button) {
+     // Cập nhật yêu thích (gọi API PUT)
+     async function toggleFavorite(itemId, button) {
             try {
                 const response = await fetch(`http://localhost:3000/api/mon-an/${itemId}/like`, {
                     method: 'PUT',
@@ -329,6 +327,11 @@
                     monAnList[index] = updatedItem;
                 }
     
+                // Nếu đang lọc theo yêu thích, cập nhật lại danh sách hiển thị
+                if (document.getElementById('categoryFilter').value === 'favorite') {
+                    filterMenu();
+                }
+    
             } catch (error) {
                 console.error('Lỗi khi cập nhật yêu thích:', error);
                 alert('Có lỗi xảy ra: ' + error.message);
@@ -338,14 +341,20 @@
         // Lọc dữ liệu menu theo tìm kiếm, danh mục, yêu thích
         function filterMenu() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const category = document.getElementById('categoryFilter').value;
-            const favoriteOnly = document.getElementById('favoriteFilter').checked;
-    
+            const filterOption = document.getElementById('categoryFilter').value;
+            
             const filtered = monAnList.filter(item => {
                 const matchSearch = item.tenMon.toLowerCase().includes(searchTerm);
-                const matchCategory = category === 'all' || item.danhMuc === category;
-                const matchFavorite = !favoriteOnly || item.yeuThich;
-                return matchSearch && matchCategory && matchFavorite;
+                
+                // Kiểm tra danh mục hoặc yêu thích
+                let categoryMatch = true;
+                if (filterOption === 'favorite') {
+                    categoryMatch = item.yeuThich;
+                } else if (filterOption !== 'all') {
+                    categoryMatch = item.danhMuc === filterOption;
+                }
+                
+                return matchSearch && categoryMatch;
             });
     
             renderMenu(filtered);
@@ -354,7 +363,6 @@
         // Gắn sự kiện
         document.getElementById('searchInput').addEventListener('input', filterMenu);
         document.getElementById('categoryFilter').addEventListener('change', filterMenu);
-        document.getElementById('favoriteFilter').addEventListener('change', filterMenu);
     
         // Khởi tạo
         document.addEventListener('DOMContentLoaded', fetchMonAn);

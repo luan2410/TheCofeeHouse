@@ -105,67 +105,35 @@
         <div class="box-container">
 
             <div class="box">
-                <div class="icons">
-                    <a href="#" class="fas fa-shopping-cart"></a>
-                    <a href="#" class="fas fa-heart"></a>
-                    <a href="#" class="fas fa-eye"></a>
-                </div>
+
                 <div class="image">
-                    <img src="../data/images/product-1.png" alt="">
+                    <img src="../data/images/baprang.jpg" alt="">
                 </div>
                 <div class="content">
-                    <h3>Cà phê nguyên chất</h3>
-                    <div class="stars">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star-half-alt"></i>
-                    </div>
+                    <h3>bap rang</h3>
+
                     <div class="price">39.000₫ <span>52.000₫</span></div>
                 </div>
             </div>
 
             <div class="box">
-                <div class="icons">
-                    <a href="#" class="fas fa-shopping-cart"></a>
-                    <a href="#" class="fas fa-heart"></a>
-                    <a href="#" class="fas fa-eye"></a>
-                </div>
                 <div class="image">
-                    <img src="../data/images/product-2.png" alt="">
+                    <img src="../data/images/sanwichca.jpg" alt="">
                 </div>
                 <div class="content">
-                    <h3>Cà phê rang xay mới</h3>
-                    <div class="stars">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star-half-alt"></i>
-                    </div>
+                    <h3>Bánh sanwich chica</h3>
+                   
                     <div class="price">42.000₫ <span>55.000₫</span></div>
                 </div>
             </div>
 
             <div class="box">
-                <div class="icons">
-                    <a href="#" class="fas fa-shopping-cart"></a>
-                    <a href="#" class="fas fa-heart"></a>
-                    <a href="#" class="fas fa-eye"></a>
-                </div>
                 <div class="image">
-                    <img src="../data/images/product-3.png" alt="">
+                    <img src="../data/images/sanwichxuc.jpg" alt="">
                 </div>
                 <div class="content">
-                    <h3>Cà phê thơm lừng</h3>
-                    <div class="stars">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star-half-alt"></i>
-                    </div>
+                    <h3>Bánh sanwich úc</h3>
+                   
                     <div class="price">45.000₫ <span>60.000₫</span></div>
                 </div>
             </div>
@@ -191,50 +159,18 @@
         <h1 class="heading"> bài viết <span>mới nhất</span> </h1>
 
         <div class="box-container" id="blog-container">
-
-            <div class="box">
-                <div class="image">
-                    <img src="../data/images/blog-1.jpeg" alt="">
-                </div>
-                <div class="content">
-                    <a href="#" class="title">Cà phê thơm ngon và sảng khoái</a>
-                    <span>tác giả: admin / 21 tháng 5, 2021</span>
-                    <p>Khám phá bí quyết để pha một tách cà phê vừa đậm đà vừa tinh tế, phù hợp cho mọi buổi sáng.</p>
-                    <a href="#" class="btn">đọc thêm</a>
-                </div>
-            </div>
-
-            <div class="box">
-                <div class="image">
-                    <img src="../data/images/blog-2.jpeg" alt="">
-                </div>
-                <div class="content">
-                    <a href="#" class="title">Cách chọn hạt cà phê ngon</a>
-                    <span>tác giả: admin / 21 tháng 5, 2021</span>
-                    <p>Hướng dẫn phân biệt các loại hạt cà phê ngon và phù hợp với gu thưởng thức của bạn.</p>
-                    <a href="#" class="btn">đọc thêm</a>
-                </div>
-            </div>
-
-            <div class="box">
-                <div class="image">
-                    <img src="../data/images/blog-3.jpeg" alt="">
-                </div>
-                <div class="content">
-                    <a href="#" class="title">Pha cà phê đúng cách tại nhà</a>
-                    <span>tác giả: admin / 21 tháng 5, 2021</span>
-                    <p>Chỉ với vài bước đơn giản, bạn có thể tự tay pha một ly cà phê ngon không kém gì quán.</p>
-                    <a href="#" class="btn">đọc thêm</a>
-                </div>
-            </div>
+            
 
         </div>
 
     </section>
 
+    
+    
     // footer
     <section class="footer">
 
+    
         <div class="share">
             <a href="#" class="fab fa-facebook-f"></a>
             <a href="#" class="fab fa-twitter"></a>
@@ -314,6 +250,48 @@
                 `;
             }
         }
+        // Hàm hiển thị 8 món ăn đầu tiên
+//       // Hàm hiển thị 8 món ăn đầu tiên
+//       async function hienThiMonAn() {
+//     try {
+//         const container = document.getElementById('box-mon-an');
+//         container.innerHTML = '<div class="loading">Đang tải danh sách món ăn...</div>';
+        
+//         const phanHoi = await fetch('http://localhost:3000/api/mon-an');
+        
+//         if (!phanHoi.ok) {
+//             throw new Error('Không thể tải dữ liệu món ăn. Mã lỗi: ' + phanHoi.status);
+//         }
+        
+//         const tatCaMonAn = await phanHoi.json();
+//         const cacMonAnHienThi = tatCaMonAn.slice(0, 8);
+        
+//         let htmlMonAn = '';
+//         cacMonAnHienThi.forEach(monAn => {
+//             htmlMonAn += `
+//                 <div class="box" onclick="chuyenHuongMonAn('${monAn._id}')" style="cursor: pointer;">
+//                     <img src="${monAn.hinhAnh}" alt="${monAn.tenMon}">
+//                     <h3>${monAn.tenMon}</h3>
+//                     <div class="price">${monAn.gia.toLocaleString('vi-VN')}₫</div>
+//                 </div>
+//             `;
+//         });
+        
+//         container.innerHTML = htmlMonAn;
+        
+//     } catch (loi) {
+//         console.error('Lỗi khi tải menu món ăn:', loi);
+//         document.getElementById('box-mon-an').innerHTML = `
+//             <div class="error-message">
+//                 <p>Đã xảy ra lỗi khi tải danh sách món ăn</p>
+//                 <p>Vui lòng tải lại trang hoặc thử lại sau</p>
+//             </div>
+//         `;
+//     }
+// }
+
+
+
         // lam ngan lai noi dung cua blog
         function shortenContent(content, wordLimit) {
             const words = content.split(' ');

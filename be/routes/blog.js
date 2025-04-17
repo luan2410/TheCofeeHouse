@@ -1,18 +1,7 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const router = express.Router();
+const Blog = require('../models/blog');
 
-// Khai báo schema
-const blogSchema = new mongoose.Schema({
-    title: { type: String, required: true },
-    content: { type: String, required: true },
-    image: { type: String },
-    author: { type: String, required: true },
-    createdAt: { type: Date, default: Date.now }
-});
-
-// Tạo model
-const Blog = mongoose.model('Blog', blogSchema, 'blogs');
 // Tạo blog mới
 router.post('/blogs', async (req, res) => {
     try {

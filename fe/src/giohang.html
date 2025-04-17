@@ -109,11 +109,9 @@
 
   <script>
     const userId = localStorage.getItem('_id');
-
     function updateQuantity(productId, category, currentQty, change) {
       const newQty = currentQty + change;
       if (newQty < 0) return;
-
       fetch('http://localhost:3000/update', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -131,8 +129,7 @@
           const cartContainer = document.getElementById('cart');
           const totalText = document.getElementById('total');
           cartContainer.innerHTML = '';
-
-          if (data.cart && data.cart.items.length > 0) {
+        if (data.cart && data.cart.items.length > 0) {
             data.cart.items.forEach(item => {
               const product = item.productDetail;
               const itemDiv = document.createElement('div');
@@ -153,7 +150,8 @@
             });
 
             totalText.innerText = `Tổng cộng: ${data.total} đ`;
-          } else {
+          } 
+          else {
             cartContainer.innerText = 'Giỏ hàng trống';
             totalText.innerText = '';
           }
@@ -165,9 +163,9 @@
     }
 
     function checkout() {
-      const paymentMethod = 'credit_card';  // You can modify this according to the user input
-      const deliveryAddress = 'Some address here';  // Modify this to get actual user input
-      const note = 'Additional instructions';  // Modify as needed
+      const paymentMethod = 'Chuyển Khoản';
+      const deliveryAddress = 'số 10 nguyễn văn bảo , p4 , gò vấp';  
+      const note = 'Nhớ giao hàng cận thận';  
 
       fetch('http://localhost:3000/checkout', {
         method: 'POST',

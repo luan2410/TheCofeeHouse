@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Order = require('./order'); // Đảm bảo đường dẫn đúng với vị trí model
+const Order = require('../models/order'); // Đảm bảo đường dẫn đúng với vị trí model
 
 // GET /api/orders/user/:userId - Lấy danh sách đơn hàng theo userId
 router.get('/user/:userId', async (req, res) => {
