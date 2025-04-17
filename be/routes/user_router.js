@@ -33,7 +33,7 @@ router.post('/login', async (req, res) => {
     try {
         const user = await User.findOne({
             tenTaiKhoan: req.body.tenTaiKhoan,
-            matKhau: req.body.matKhau // 👈 nên hash ở thực tế nhé
+            matKhau: req.body.matKhau
 
         });
 
@@ -41,14 +41,14 @@ router.post('/login', async (req, res) => {
         res.status(200).json({
             message: "Đăng nhập thành công",
             idUser: user.idUser,// Chỉ cần trả về idUser thay vì toàn bộ user
-            _id: user._id , // luan them
+            _id: user._id, // luan them
         });
         // res.status(200).json({ message: "Đăng nhập thành công", user });
         // res.redirect('http://localhost:3000/index.html');
     } catch (err) {
         res.status(500).json({ message: "Lỗi server", error: err });
     }
-    console.log("✅ Dữ liệu nhận được:", req.body); // Thêm dòng này
+    console.log("✅ Dữ liệu nhận được:", req.body); // Thêm dòng này để test dữ liệu nhận được sau khi đăng nhập
 });
 
 
@@ -206,6 +206,7 @@ router.get('/:idUser', async (req, res) => {
             tenTaiKhoan: user.tenTaiKhoan,
             sdt: user.sdt,
             ngayTao: user.ngayTao,
+            rank: user.rank,
             diemTichLuy: user.diemTichLuy,
             comment: user.comment,
             img: user.img
