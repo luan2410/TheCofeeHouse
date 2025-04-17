@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Danh sách đơn hàng</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-image: url(../data/images/home-img.jpeg);
+        }
+
+        h1 {
+            color: #ffffff;
+        }
+
+        .order {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        .order h2 {
+            margin-top: 0;
+        }
+
+        .item {
+            padding-left: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Danh sách đơn hàng</h1>
+    <div id="orders"></div>
+
+    <script>
+        const userId = localStorage.getItem('_id'); // 👈 Thay userId thực tế ở đây
+
+        async function fetchOrders() {
+            try {
+                const response = await fetch(`http://localhost:3000/api/orders/user/${userId}`);
+                const orders = await response.json();
+
+                const ordersContainer = document.getElementById('orders');
+                ordersContainer.innerHTML = '';
+
+                if (orders.length === 0) {
+                    ordersContainer.innerHTML = '<p>Không có đơn hàng nào.</p>';
+                    return;
+                }
+
+                orders.forEach(order => {
+                    const orderDiv = document.createElement('div');
+                    orderDiv.className = 'order';
+
+                    let itemsHTML = '';
+                    order.items.forEach(item => {
+                        itemsHTML += `
+              <div class="item">
+                <p><strong>${item.name}</strong> - ${item.quantity} x ${item.price} = ${item.itemTotal}</p>
+              </div>
+            `;
+                    });
+
+                    orderDiv.innerHTML = `
+            <h2>Đơn hàng: ${order._id}</h2>
+            <p><strong>Ngày đặt:</strong> ${order.orderDate}</p>
+            <p><strong>Phương thức thanh toán:</strong> ${order.paymentMethod}</p>
+            <p><strong>Địa chỉ giao:</strong> ${order.deliveryAddress}</p>
+            <p><strong>Ghi chú:</strong> ${order.note || 'Không có'}</p>
+            <p><strong>Trạng thái:</strong> ${order.status}</p>
+            <p><strong>Tổng tiền:</strong> ${order.totalAmount}</p>
+            <h3>Chi tiết sản phẩm:</h3>
+            ${itemsHTML}
+          `;
+
+                    ordersContainer.appendChild(orderDiv);
+                });
+            } catch (error) {
+                console.error('Lỗi khi lấy đơn hàng:', error);
+                document.getElementById('orders').innerHTML = '<p>Lỗi khi tải đơn hàng.</p>';
+            }
+        }
+
+        fetchOrders();
+    </script>
+
+</body>
+
+</html>
